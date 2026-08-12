@@ -118,6 +118,37 @@ Example:
     "([)]"
 
 is invalid.
+## 503 - Next Greater Element II
+
+Pattern: Monotonic Decreasing Stack
+
+Key Concepts:
+- Circular array
+- 2n traversal
+- i % n
+- Stack of indices
+- Push indices only during first pass
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+
+Status: Completed
+
+
+## 901 - Online Stock Span
+
+Pattern: Monotonic Decreasing Stack
+
+Key Concepts:
+- Stack stores (price, span)
+- Pop smaller/equal previous prices
+- Accumulate their stored spans
+- Avoid repeated backward traversal
+
+Time Complexity: O(n) amortized
+Space Complexity: O(n)
+
+Status: Concept studied — implementation pending
 
 ---
 
