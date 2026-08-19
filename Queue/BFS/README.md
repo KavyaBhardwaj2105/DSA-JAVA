@@ -1,484 +1,89 @@
+# Queue + Breadth-First Search (BFS)
 
+BFS is one of the most important applications of a Queue. The Queue follows FIFO: First In, First Out. BFS uses this property to process nodes in the order in which they are discovered.
 
-```text
-DSA-JAVA/
-└── Queue/
-    ├── README.md
-    └── BFS/
-        ├── README.md
-        ├── LC102-Level-Order-Traversal.java
-        └── LC994-Rotting-Oranges.java
-```
-
-`Queue/README.md` mein ye **complete documentation** paste karo:
-
-````md
-# Queue
-
-Queue is a linear data structure that follows the FIFO principle.
-
-FIFO = First In, First Out.
-
-The element inserted first is removed first.
-
----
-
-## 1. Basic Structure
-
-Example:
-
-[10] [20] [30] [40]
- ↑                  ↑
-Front              Rear
-
-10 will be removed first because it entered first.
-
----
-
-## 2. Core Operations
-
-### offer()
-
-Adds an element to the rear of the queue.
+## Core Queue Operations
 
 ```java
 Queue<Integer> q = new ArrayDeque<>();
 
-q.offer(10);
-q.offer(20);
-q.offer(30);
-````
-
-Queue:
-
-[10, 20, 30]
-
----
-
-### poll()
-
-Removes and returns the front element.
-
-```java
-int x = q.poll();
+q.offer(10);   // insert at rear
+q.poll();      // remove from front
+q.peek();      // see front without removing
+q.isEmpty();   // check empty
+q.size();      // number of elements
 ```
-
-If the queue was:
-
-[10, 20, 30]
-
-After poll:
-
-[20, 30]
-
-Returned value:
-
-10
-
----
-
-### peek()
-
-Returns the front element without removing it.
-
-```java
-int x = q.peek();
-```
-
-Queue:
-
-[20, 30]
-
-peek() returns:
-
-20
-
-Queue remains:
-
-[20, 30]
-
----
-
-### isEmpty()
-
-Checks whether the queue is empty.
-
-```java
-q.isEmpty();
-```
-
-Returns:
-
-true or false.
-
----
-
-### size()
-
-Returns the number of elements.
-
-```java
-q.size();
-```
-
----
-
-# 3. Java Queue
-
-Queue is an interface in Java.
-
-A common implementation for DSA is ArrayDeque.
-
-```java
-Queue<Integer> q = new ArrayDeque<>();
-```
-
-Basic example:
-
-```java
-Queue<Integer> q = new ArrayDeque<>();
-
-q.offer(10);
-q.offer(20);
-q.offer(30);
-
-System.out.println(q.poll());  // 10
-System.out.println(q.peek());  // 20
-```
-
----
-
-# 4. Queue Operations Complexity
 
 | Operation | Complexity |
-| --------- | ---------- |
-| offer()   | O(1)       |
-| poll()    | O(1)       |
-| peek()    | O(1)       |
-| isEmpty() | O(1)       |
-| size()    | O(1)       |
+|---|---:|
+| `offer()` | O(1) |
+| `poll()` | O(1) |
+| `peek()` | O(1) |
+| `isEmpty()` | O(1) |
+| `size()` | O(1) |
+
+For Java DSA, `ArrayDeque` is generally preferred over the legacy `Stack` class when a stack/queue structure is needed.
 
 ---
 
-# 5. Queue vs Stack
-
-## Stack
-
-Stack follows LIFO.
-
-LIFO = Last In, First Out.
-
-Example:
-
-[10, 20, 30]
-
-pop() removes:
-
-30
-
-## Queue
-
-Queue follows FIFO.
-
-Example:
-
-[10, 20, 30]
-
-poll() removes:
-
-10
-
-| Data Structure | Principle | Removal        |
-| -------------- | --------- | -------------- |
-| Stack          | LIFO      | Last inserted  |
-| Queue          | FIFO      | First inserted |
-
----
-
-# 6. Deque
-
-Deque = Double Ended Queue.
-
-Unlike a normal Queue, insertion and deletion can happen from both ends.
-
-```text
-Front                     Rear
- ↓                         ↓
-[10] [20] [30] [40]
- ↑                         ↑
-add/remove              add/remove
-```
-
-Java:
-
-```java
-Deque<Integer> dq = new ArrayDeque<>();
-```
-
----
-
-## Deque Operations
-
-### addFirst()
-
-Adds at the front.
-
-```java
-dq.addFirst(10);
-```
-
-### addLast()
-
-Adds at the rear.
-
-```java
-dq.addLast(20);
-```
-
-### removeFirst()
-
-Removes from the front.
-
-```java
-dq.removeFirst();
-```
-
-### removeLast()
-
-Removes from the rear.
-
-```java
-dq.removeLast();
-```
-
-### peekFirst()
-
-Returns the front element.
-
-```java
-dq.peekFirst();
-```
-
-### peekLast()
-
-Returns the rear element.
-
-```java
-dq.peekLast();
-```
-
----
-
-# 7. Deque Example
-
-```java
-Deque<Integer> dq = new ArrayDeque<>();
-
-dq.addLast(20);
-dq.addLast(30);
-
-dq.addFirst(10);
-
-System.out.println(dq);
-```
-
-Deque:
-
-[10, 20, 30]
-
-Then:
-
-```java
-dq.removeLast();
-```
-
-Result:
-
-[10, 20]
-
----
-
-# 8. Deque Can Also Work Like a Stack
-
-A Deque can be used as a Stack.
-
-```java
-Deque<Integer> stack = new ArrayDeque<>();
-
-stack.push(10);
-stack.push(20);
-
-System.out.println(stack.pop());
-```
-
-Output:
-
-20
-
-For modern Java DSA implementations, `ArrayDeque` is often preferred over the legacy `Stack` class.
-
----
-
-# 9. Breadth-First Search
+# BFS Fundamentals
 
 BFS = Breadth-First Search.
 
-BFS explores nodes level by level.
+BFS explores a tree or graph level by level.
 
-The core data structure used by BFS is a Queue.
+Example:
 
-Example tree:
-
-```
-    1
-   / \
-  2   3
- / \   \
-4   5   6
+```text
+        1
+       / \\
+      2   3
+     / \\   \\
+    4   5   6
 ```
 
-BFS traversal:
+Traversal:
 
-1 → 2 → 3 → 4 → 5 → 6
+```text
+1 -> 2 -> 3 -> 4 -> 5 -> 6
+```
 
----
-
-# 10. How BFS Works
-
-Start with the root.
-
-Queue:
-
-[1]
-
-Process 1.
-
-Add its children:
-
-[2, 3]
-
-Process 2.
-
-Add its children:
-
-[3, 4, 5]
-
-Process 3.
-
-Add its child:
-
-[4, 5, 6]
-
-Continue until the queue becomes empty.
-
-The Queue guarantees FIFO order.
-
----
-
-# 11. Basic Tree BFS Template
+The basic tree BFS template is:
 
 ```java
 Queue<TreeNode> q = new ArrayDeque<>();
-
 q.offer(root);
 
 while (!q.isEmpty()) {
-
     TreeNode node = q.poll();
 
     // process node
 
-    if (node.left != null) {
-        q.offer(node.left);
-    }
-
-    if (node.right != null) {
-        q.offer(node.right);
-    }
+    if (node.left != null) q.offer(node.left);
+    if (node.right != null) q.offer(node.right);
 }
 ```
 
----
+## Level-Order BFS
 
-# 12. Level Order BFS
-
-Sometimes we need each level separately.
-
-For example:
-
-```
-    3
-   / \
-  9   20
-     /  \
-    15   7
-```
-
-Output:
-
-[
-[3],
-[9, 20],
-[15, 7]
-]
-
-We use:
-
-```java
-int levelSize = q.size();
-```
-
-The important idea is that `levelSize` stores the number of nodes belonging to the current level.
-
-Then process exactly that many nodes.
-
-Template:
+When the output must preserve levels, save the queue size before processing the current level.
 
 ```java
 while (!q.isEmpty()) {
-
     int levelSize = q.size();
 
-    List<Integer> level = new ArrayList<>();
-
     for (int i = 0; i < levelSize; i++) {
-
         TreeNode node = q.poll();
-
-        level.add(node.val);
-
-        if (node.left != null) {
-            q.offer(node.left);
-        }
-
-        if (node.right != null) {
-            q.offer(node.right);
-        }
+        // process current level node
     }
-
-    result.add(level);
 }
 ```
 
----
+`levelSize` is critical. Nodes added while processing the current level belong to the next level and must not be processed immediately.
 
-# 13. BFS in Graphs
+## BFS in Graphs
 
-Graphs can contain cycles.
-
-Example:
-
-1 → 2 → 3
-↑   |
-└───┘
-
-Without tracking visited nodes, BFS can process the same node repeatedly.
-
-Therefore graph BFS generally uses:
-
-Queue + Visited
-
-Example:
+Graphs can contain cycles, so graph BFS normally needs `visited`.
 
 ```java
 Queue<Integer> q = new ArrayDeque<>();
@@ -488,13 +93,10 @@ q.offer(start);
 visited[start] = true;
 
 while (!q.isEmpty()) {
-
     int node = q.poll();
 
     for (int neighbour : graph[node]) {
-
         if (!visited[neighbour]) {
-
             visited[neighbour] = true;
             q.offer(neighbour);
         }
@@ -502,214 +104,59 @@ while (!q.isEmpty()) {
 }
 ```
 
-Important:
+Mark a node visited when adding it to the queue, not when removing it. This prevents duplicate queue entries.
 
-Mark a node visited when adding it to the Queue, not when removing it.
+## Multi-Source BFS
 
-This prevents the same node from being added multiple times.
+If several nodes are starting points, put all of them into the queue before BFS starts. This pattern is useful for spreading/infection problems and nearest-source problems.
 
----
+Typical signals for BFS:
 
-# 14. Multi-Source BFS
+- Level-by-level traversal
+- Minimum number of steps or moves
+- Shortest path in an unweighted graph
+- Nearest/closest node
+- Grid movement with equal cost
+- Simultaneous spreading from multiple sources
 
-Sometimes there are multiple starting points.
-
-Instead of putting one node into the Queue, put all starting nodes into the Queue initially.
-
-Example:
-
-```text
-Source     Source
-   ↓          ↓
-   └── BFS ───┘
-```
-
-This is called Multi-Source BFS.
-
-Common applications:
-
-* Rotting Oranges
-* Distance from nearest source
-* Fire spreading
-* Infection spreading
-* Grid shortest-distance problems
+For a tree with `n` nodes, BFS is O(n) time and O(n) worst-case space. For a graph with `V` vertices and `E` edges, BFS is O(V + E).
 
 ---
 
-# 15. BFS and Shortest Path
+# BFS Problem Set
 
-For an unweighted graph, BFS can find the shortest path in terms of number of edges.
-
-Why?
-
-Because BFS explores:
-
-```text
-distance 0
-    ↓
-distance 1
-    ↓
-distance 2
-    ↓
-distance 3
-```
-
-Therefore the first time we reach a node, we have reached it using the minimum number of edges.
-
----
-
-# 16. When Should I Think of BFS?
-
-Strong BFS signals:
-
-* Level-by-level traversal
-* Shortest path in an unweighted graph
-* Minimum number of moves
-* Minimum number of steps
-* Nearest/closest node
-* Grid problems with equal movement cost
-* Multiple starting points spreading simultaneously
-
----
-
-# 17. BFS Complexity
-
-For a tree with n nodes:
-
-Time:
-
-O(n)
-
-Space:
-
-O(n)
-
-For a graph with V vertices and E edges:
-
-Time:
-
-O(V + E)
-
-Space:
-
-O(V)
-
-For an m × n grid:
-
-Time:
-
-O(m × n)
-
-Space:
-
-O(m × n)
-
----
-
-# 18. Important BFS Rules
-
-1. Queue is the core data structure.
-2. Tree BFS normally does not require visited.
-3. Graph BFS generally requires visited.
-4. Multi-source BFS starts with multiple nodes in the Queue.
-5. `queue.size()` can be used to separate levels.
-6. One BFS level can represent one unit of time in spreading problems.
-7. BFS gives shortest path in unweighted graphs.
-8. Always identify what the Queue stores:
-
-   * TreeNode
-   * graph node
-   * coordinates
-   * state
-
-````
-
-Now `Queue/BFS/README.md` mein **problem-specific documentation** rakho:
-
-```md
-# BFS Problems
-
-This section contains Breadth-First Search problems and their implementations.
+The following problems build the important tree-BFS variants: normal level order, averages per level, right-side view, row-wise maximum, minimum depth, and pointer connection between nodes at the same level.
 
 ---
 
 # LC 102 — Binary Tree Level Order Traversal
 
-## Problem
-
-Given the root of a binary tree, return its level order traversal.
-
-Each level should be returned as a separate list.
-
-Example:
-
-        3
-       / \
-      9   20
-         /  \
-        15   7
-
-Output:
-
-[
-    [3],
-    [9, 20],
-    [15, 7]
-]
-
----
-
 ## Pattern
 
-This is a classic:
+**Queue + Level-Order BFS**
 
-Queue + Level-Order BFS
+## Logic
 
----
+We need every tree level separately. Put the root into the queue. At the start of each BFS round, store `q.size()` as `levelSize`. Process exactly those nodes and add their children to the queue for the next round.
 
-## Core Idea
+## Step-by-Step
 
-Use a Queue to process nodes in FIFO order.
-
-At the beginning of every level:
-
-```java
-int levelSize = q.size();
-````
-
-This tells us how many nodes belong to the current level.
-
-Process exactly `levelSize` nodes.
-
-While processing them, add their children to the Queue.
-
-Those children belong to the next level.
-
----
-
-## Algorithm
-
-1. Create result list.
-2. If root is null, return result.
-3. Add root to Queue.
-4. While Queue is not empty:
-
-   * Store current Queue size.
-   * Create a new list for the current level.
-   * Process exactly `levelSize` nodes.
-   * Add each node's value to current level.
-   * Add non-null children to Queue.
-   * Add current level to result.
-5. Return result.
-
----
+1. Create the result list.
+2. Handle `root == null`.
+3. Add `root` to the queue.
+4. While the queue is not empty, save `levelSize = q.size()`.
+5. Process exactly `levelSize` nodes.
+6. Add each node value to the current level.
+7. Add non-null left and right children to the queue.
+8. Add the completed level to the result.
 
 ## Java Solution
 
 ```java
+import java.util.*;
+
 class Solution {
     public List<List<Integer>> levelOrder(TreeNode root) {
-
         List<List<Integer>> result = new ArrayList<>();
 
         if (root == null) {
@@ -720,24 +167,15 @@ class Solution {
         q.offer(root);
 
         while (!q.isEmpty()) {
-
             int levelSize = q.size();
-
             List<Integer> level = new ArrayList<>();
 
             for (int i = 0; i < levelSize; i++) {
-
                 TreeNode node = q.poll();
-
                 level.add(node.val);
 
-                if (node.left != null) {
-                    q.offer(node.left);
-                }
-
-                if (node.right != null) {
-                    q.offer(node.right);
-                }
+                if (node.left != null) q.offer(node.left);
+                if (node.right != null) q.offer(node.right);
             }
 
             result.add(level);
@@ -748,413 +186,401 @@ class Solution {
 }
 ```
 
----
-
-## Why levelSize is important
-
-Suppose:
-
-```text
-Queue = [9, 20]
-```
-
-Then:
-
-```java
-levelSize = 2;
-```
-
-We process exactly 2 nodes.
-
-While processing 20, we may add:
-
-```text
-15, 7
-```
-
-Queue becomes:
-
-```text
-[15, 7]
-```
-
-But 15 and 7 must NOT be processed in the current level.
-
-They belong to the next level.
-
-Therefore we store the original Queue size before processing.
-
----
-
 ## Complexity
 
-Time:
+Time: O(n), because every node is processed once.
 
-O(n)
-
-Every node is processed once.
-
-Space:
-
-O(n)
-
-The Queue and result can contain O(n) elements.
+Space: O(n) worst case for the queue and result.
 
 ---
 
-# LC 994 — Rotting Oranges
-
-## Problem
-
-A grid contains:
-
-```text
-0 → empty
-1 → fresh orange
-2 → rotten orange
-```
-
-Every minute, a rotten orange makes its adjacent fresh oranges rotten.
-
-Adjacent means:
-
-```text
-up
-down
-left
-right
-```
-
-Return the minimum number of minutes required for all oranges to become rotten.
-
-If impossible, return -1.
-
----
+# LC 637 — Average of Levels in Binary Tree
 
 ## Pattern
 
-Multi-Source BFS
+**Level-Order BFS + Aggregation**
 
----
+## Logic
 
-## Core Idea
+This is almost the same as LC 102. The difference is that instead of storing every value in a level list, calculate the sum of the current level and divide by the number of nodes in that level.
 
-There can be multiple rotten oranges initially.
+Use `long` for the sum to avoid unnecessary integer overflow concerns when node values are large.
 
-Put ALL rotten oranges into the Queue before starting BFS.
+## Step-by-Step
 
-Also maintain:
-
-```text
-fresh = number of fresh oranges
-minutes = elapsed BFS levels
-```
-
-Every BFS level represents one minute.
-
----
-
-## What Does the Queue Store?
-
-The Queue stores coordinates:
-
-```text
-(row, column)
-```
-
-because we need the position of every rotten orange to inspect its four neighbours.
-
----
-
-## Algorithm
-
-1. Traverse the entire grid.
-2. Add every rotten orange to the Queue.
-3. Count all fresh oranges.
-4. Start BFS.
-5. For every BFS level:
-
-   * Process all currently rotten oranges.
-   * Check their four directions.
-   * If a neighbour is fresh:
-
-     * make it rotten
-     * decrease fresh count
-     * add it to Queue
-6. After processing a level, increase minutes.
-7. If fresh becomes zero, return minutes.
-8. If Queue becomes empty while fresh oranges remain, return -1.
-
----
-
-## Directions
-
-For each cell:
-
-```text
-up    → row - 1, col
-down  → row + 1, col
-left  → row, col - 1
-right → row, col + 1
-```
-
-A common Java representation:
-
-```java
-int[][] directions = {
-    {-1, 0},
-    {1, 0},
-    {0, -1},
-    {0, 1}
-};
-```
-
----
+1. Create the answer list.
+2. If root is null, return the empty list.
+3. Put root into the queue.
+4. At the start of each level, store `levelSize = q.size()`.
+5. Initialize `sum = 0`.
+6. Process exactly `levelSize` nodes.
+7. Add each node's value to `sum`.
+8. Add its non-null children to the queue.
+9. Calculate `sum / levelSize` as a `double`.
+10. Add the average to the answer.
 
 ## Java Solution
 
 ```java
+import java.util.*;
+
 class Solution {
+    public List<Double> averageOfLevels(TreeNode root) {
+        List<Double> result = new ArrayList<>();
 
-    public int orangesRotting(int[][] grid) {
-
-        int rows = grid.length;
-        int cols = grid[0].length;
-
-        Queue<int[]> q = new ArrayDeque<>();
-
-        int fresh = 0;
-
-        for (int r = 0; r < rows; r++) {
-
-            for (int c = 0; c < cols; c++) {
-
-                if (grid[r][c] == 2) {
-                    q.offer(new int[]{r, c});
-                }
-
-                else if (grid[r][c] == 1) {
-                    fresh++;
-                }
-            }
+        if (root == null) {
+            return result;
         }
 
-        int minutes = 0;
+        Queue<TreeNode> q = new ArrayDeque<>();
+        q.offer(root);
 
-        int[][] directions = {
-            {-1, 0},
-            {1, 0},
-            {0, -1},
-            {0, 1}
-        };
-
-        while (!q.isEmpty() && fresh > 0) {
-
+        while (!q.isEmpty()) {
             int levelSize = q.size();
+            long sum = 0;
 
             for (int i = 0; i < levelSize; i++) {
+                TreeNode node = q.poll();
+                sum += node.val;
 
-                int[] current = q.poll();
-
-                int r = current[0];
-                int c = current[1];
-
-                for (int[] direction : directions) {
-
-                    int nr = r + direction[0];
-                    int nc = c + direction[1];
-
-                    if (nr >= 0 && nr < rows &&
-                        nc >= 0 && nc < cols &&
-                        grid[nr][nc] == 1) {
-
-                        grid[nr][nc] = 2;
-
-                        fresh--;
-
-                        q.offer(new int[]{nr, nc});
-                    }
-                }
+                if (node.left != null) q.offer(node.left);
+                if (node.right != null) q.offer(node.right);
             }
 
-            minutes++;
+            result.add((double) sum / levelSize);
         }
 
-        return fresh == 0 ? minutes : -1;
+        return result;
     }
 }
 ```
 
----
+## Complexity
 
-## Dry Run
+Time: O(n).
 
-Input:
+Space: O(n) worst case.
 
-```text
-2 1
-1 1
-```
+## Key Takeaway
 
-Initial:
-
-```text
-Queue = [(0,0)]
-fresh = 3
-minutes = 0
-```
-
-Minute 1:
-
-```text
-2 2
-2 1
-```
-
-Now:
-
-```text
-fresh = 1
-Queue = [(0,1), (1,0)]
-minutes = 1
-```
-
-Minute 2:
-
-```text
-2 2
-2 2
-```
-
-Now:
-
-```text
-fresh = 0
-minutes = 2
-```
-
-Answer:
-
-```text
-2
-```
+LC 637 is not a new BFS pattern. It is **LC 102 + an aggregation operation per level**.
 
 ---
 
-## Why Multi-Source BFS?
+# LC 199 — Binary Tree Right Side View
 
-Suppose there are three rotten oranges initially.
+## Pattern
 
-They all start spreading at the same time.
+**Level-Order BFS + Last Node of Each Level**
 
-If we process them separately, we could incorrectly count time.
+## Logic
 
-Instead:
+Imagine standing on the right side of the tree. At every level, the visible node is the rightmost node in that level.
 
-```text
-Queue = [rotten1, rotten2, rotten3]
+BFS already gives us one level at a time. Therefore, while processing a level, the node at index `levelSize - 1` is the answer for that level.
+
+## Step-by-Step
+
+1. Create the result list.
+2. If root is null, return it.
+3. Add root to the queue.
+4. For each level, save `levelSize`.
+5. Process exactly `levelSize` nodes.
+6. If `i == levelSize - 1`, add that node's value to the result.
+7. Add children to the queue.
+8. Continue until the queue is empty.
+
+## Java Solution
+
+```java
+import java.util.*;
+
+class Solution {
+    public List<Integer> rightSideView(TreeNode root) {
+        List<Integer> result = new ArrayList<>();
+
+        if (root == null) {
+            return result;
+        }
+
+        Queue<TreeNode> q = new ArrayDeque<>();
+        q.offer(root);
+
+        while (!q.isEmpty()) {
+            int levelSize = q.size();
+
+            for (int i = 0; i < levelSize; i++) {
+                TreeNode node = q.poll();
+
+                if (i == levelSize - 1) {
+                    result.add(node.val);
+                }
+
+                if (node.left != null) q.offer(node.left);
+                if (node.right != null) q.offer(node.right);
+            }
+        }
+
+        return result;
+    }
+}
 ```
-
-All three are considered part of BFS level 0.
-
-Their newly rotten neighbours form level 1.
-
-Those neighbours form level 2.
-
-Therefore BFS naturally models simultaneous spreading.
-
----
-
-## Important Edge Cases
-
-### No fresh oranges
-
-If:
-
-```text
-fresh = 0
-```
-
-answer is:
-
-```text
-0
-```
-
-because nothing needs to rot.
-
-### Fresh oranges cannot be reached
-
-Example:
-
-```text
-2 0 1
-```
-
-The fresh orange cannot be reached.
-
-Therefore:
-
-```text
--1
-```
-
-### Multiple rotten oranges
-
-Use Multi-Source BFS.
-
-### Single cell
-
-Handle normally through the same logic.
-
----
 
 ## Complexity
 
-For an m × n grid:
+Time: O(n).
 
-Time:
+Space: O(n) worst case.
 
-O(m × n)
+## Key Takeaway
 
-Every cell is processed at most once.
-
-Space:
-
-O(m × n)
-
-The Queue can contain many coordinates.
+Do not create an unnecessary second traversal. The right-side view is simply **the last processed node of every BFS level**.
 
 ---
 
-# BFS Interview Checklist
+# LC 515 — Find Largest Value in Each Tree Row
 
-Before solving a BFS problem, ask:
+## Pattern
 
-1. What does the Queue store?
-2. Is this single-source or multi-source BFS?
-3. Do I need a visited structure?
-4. Does each BFS level represent distance or time?
-5. Do I need `levelSize = q.size()`?
-6. What are the neighbours?
-7. What is the stopping condition?
-8. What happens if the target cannot be reached?
+**Level-Order BFS + Maximum per Level**
+
+## Logic
+
+Again, the BFS structure is unchanged. For each level, initialize `max` to the smallest possible integer and update it for every node in that level.
+
+## Step-by-Step
+
+1. Create the answer list.
+2. Handle `root == null`.
+3. Add root to the queue.
+4. For each level, save `levelSize`.
+5. Set `max = Integer.MIN_VALUE`.
+6. Process exactly `levelSize` nodes.
+7. Update `max = Math.max(max, node.val)`.
+8. Add children to the queue.
+9. Add `max` to the answer after finishing the level.
+
+## Java Solution
+
+```java
+import java.util.*;
+
+class Solution {
+    public List<Integer> largestValues(TreeNode root) {
+        List<Integer> result = new ArrayList<>();
+
+        if (root == null) {
+            return result;
+        }
+
+        Queue<TreeNode> q = new ArrayDeque<>();
+        q.offer(root);
+
+        while (!q.isEmpty()) {
+            int levelSize = q.size();
+            int max = Integer.MIN_VALUE;
+
+            for (int i = 0; i < levelSize; i++) {
+                TreeNode node = q.poll();
+                max = Math.max(max, node.val);
+
+                if (node.left != null) q.offer(node.left);
+                if (node.right != null) q.offer(node.right);
+            }
+
+            result.add(max);
+        }
+
+        return result;
+    }
+}
+```
+
+## Complexity
+
+Time: O(n).
+
+Space: O(n) worst case.
+
+## Key Takeaway
+
+LC 515 is **level-order BFS + running maximum**. The traversal pattern does not change.
 
 ---
 
-# Problems Completed
+# LC 111 — Minimum Depth of Binary Tree
 
-* LC 102 — Binary Tree Level Order Traversal
-* LC 994 — Rotting Oranges
+## Pattern
 
-Concepts covered:
+**BFS + First Leaf Found**
 
-* Queue
-* Deque
-* BFS
-* Level-order BFS
-* Multi-Source BFS
-* Grid BFS
-* BFS time/level tracking
+## Logic
 
-````
+Minimum depth means the shortest number of nodes from the root down to a leaf.
+
+BFS explores the tree level by level. Therefore, the first leaf node we encounter is guaranteed to have minimum depth.
+
+A critical detail: a node is a leaf only when **both** children are null.
+
+Do not return merely because `left == null || right == null`; that incorrectly treats a node with one child as a leaf.
+
+## Step-by-Step
+
+1. If root is null, return 0.
+2. Put root into the queue.
+3. Start `depth = 1` because the root itself counts as one node.
+4. Process one complete level at a time.
+5. For every node in that level, check whether it is a leaf.
+6. If it is a leaf, return the current depth immediately.
+7. Otherwise, add its non-null children to the queue.
+8. After finishing the level, increase depth.
+
+## Java Solution
+
+```java
+import java.util.*;
+
+class Solution {
+    public int minDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        Queue<TreeNode> q = new ArrayDeque<>();
+        q.offer(root);
+        int depth = 1;
+
+        while (!q.isEmpty()) {
+            int levelSize = q.size();
+
+            for (int i = 0; i < levelSize; i++) {
+                TreeNode node = q.poll();
+
+                if (node.left == null && node.right == null) {
+                    return depth;
+                }
+
+                if (node.left != null) q.offer(node.left);
+                if (node.right != null) q.offer(node.right);
+            }
+
+            depth++;
+        }
+
+        return depth;
+    }
+}
+```
+
+## Complexity
+
+Time: O(n) worst case.
+
+Space: O(n) worst case.
+
+## Key Takeaway
+
+For minimum depth in an unweighted tree, BFS is often cleaner than DFS because **the first leaf reached is automatically the shallowest leaf**.
+
+---
+
+# LC 116 — Populating Next Right Pointers in Each Node
+
+## Pattern
+
+**Level-Order BFS + Connect Adjacent Nodes**
+
+## Logic
+
+For every level, nodes should point to the node immediately to their right. The last node of each level must point to `null`.
+
+BFS gives us exactly the nodes of one level. Keep a `previous` node and connect it to the current node.
+
+Because LC 116 uses a perfect binary tree, every non-leaf node has both children. This lets us add `left` and `right` directly to the queue.
+
+## Step-by-Step
+
+1. If root is null, return null.
+2. Put root into the queue.
+3. For each level, store `levelSize`.
+4. Set `previous = null` before processing that level.
+5. For each node in the level:
+   - If `previous` exists, set `previous.next = node`.
+   - Move `previous` to the current node.
+   - Add left and right children to the queue.
+6. After the level ends, the last node's `next` remains null.
+7. Return root.
+
+## Java Solution
+
+```java
+import java.util.*;
+
+class Solution {
+    public Node connect(Node root) {
+        if (root == null) {
+            return null;
+        }
+
+        Queue<Node> q = new ArrayDeque<>();
+        q.offer(root);
+
+        while (!q.isEmpty()) {
+            int levelSize = q.size();
+            Node previous = null;
+
+            for (int i = 0; i < levelSize; i++) {
+                Node current = q.poll();
+
+                if (previous != null) {
+                    previous.next = current;
+                }
+
+                previous = current;
+
+                if (current.left != null) q.offer(current.left);
+                if (current.right != null) q.offer(current.right);
+            }
+        }
+
+        return root;
+    }
+}
+```
+
+## Complexity
+
+Time: O(n).
+
+Space: O(n) because of the queue.
+
+## Key Takeaway
+
+The important trick is not the tree traversal itself. It is **using one `previous` pointer per level to connect adjacent nodes**.
+
+---
+
+# Pattern Comparison
+
+| Problem | BFS Variant | Extra Operation |
+|---|---|---|
+| LC 102 | Level Order | Store every node by level |
+| LC 637 | Level Order | Average of each level |
+| LC 199 | Level Order | Take last node of each level |
+| LC 515 | Level Order | Maximum of each level |
+| LC 111 | Level Order | Return at first leaf |
+| LC 116 | Level Order | Connect adjacent nodes |
+
+The important interview lesson is that these are not six completely different algorithms. They are mostly the **same BFS skeleton with a different operation performed during each level**.
+
+## BFS Mental Template
+
+Before coding, ask:
+
+1. **What does the Queue store?** `TreeNode`, graph node, coordinates, or another state?
+2. **When do I add elements?** Usually when their parent/current state is processed.
+3. **Do I need level separation?** If yes, save `levelSize = q.size()`.
+4. **Do I need visited?** Trees usually no; cyclic graphs usually yes.
+5. **What is the per-level operation?** Collect, sum, average, max, last node, connect, or stop at the first valid state.
+
+This is the reusable BFS pattern to remember for interviews.
