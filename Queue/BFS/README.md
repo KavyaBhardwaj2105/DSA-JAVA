@@ -1,5 +1,5 @@
 # Queue + Breadth-First Search (BFS)
-
+```really tough for me to understand even an easy level question it takes me 45 min to an hour but worth the grid ofc in the end```
 BFS is one of the most important applications of a Queue. The Queue follows FIFO: First In, First Out. BFS uses this property to process nodes in the order in which they are discovered.
 
 ## Core Queue Operations
