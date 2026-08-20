@@ -1,5 +1,5 @@
 # Arrays — DSA with Java
-
+```this is my very first step into diving into java```
 Arrays are one of the most fundamental data structures in DSA. Most advanced patterns are eventually applied to arrays, so the goal is not just to learn array syntax, but to become comfortable with traversal, indexing, searching, modification, edge cases, and complexity analysis.
 
 ---
