@@ -46,19 +46,106 @@ for every city
 
 The outer loop answers **how many components exist**. The BFS answers **which cities belong to that component**.
 
-### Algorithm
+### LC841 — Keys and Rooms
 
-1. Create `visited[]` and set `provinces = 0`.
-2. Iterate through every city.
-3. If the city is already visited, skip it.
-4. If it is unvisited, increment `provinces`.
-5. Start BFS from that city.
-6. For every city removed from the queue, scan its entire adjacency-matrix row.
-7. If a neighbour is connected and unvisited, mark it visited and enqueue it.
-8. Continue until all cities have been considered.
-9. Return `provinces`.
+#### Problem Pattern
 
-### Java Implementation
+**Single-Source Graph BFS + Reachability**
+
+Treat each room as a graph node. Every key in room `i` is a directed edge from room `i` to the room opened by that key. Room `0` is the BFS source because it is initially unlocked.
+
+#### Logic
+
+Start BFS from room `0`. Every time a new key points to an unvisited room, mark that room visited and enqueue it. At the end, if every room was visited, all rooms are reachable.
+
+```text
+Room 0
+  ↓
+BFS
+  ↓
+keys → unvisited rooms
+  ↓
+mark + enqueue
+  ↓
+repeat
+  ↓
+visitedCount == total rooms?
+```
+
+#### Algorithm
+
+1. Create `visited[]` and a queue.
+2. Put room `0` in the queue and mark it visited.
+3. While the queue is not empty, remove one room.
+4. Examine every key in that room.
+5. For every unvisited room unlocked by a key, mark it visited, increment the count, and enqueue it.
+6. Return whether the number of visited rooms equals the total number of rooms.
+
+#### Java Implementation
+
+```java
+class Solution {
+    public boolean canVisitAllRooms(List<List<Integer>> rooms) {
+        int n = rooms.size();
+        boolean[] visited = new boolean[n];
+        Queue<Integer> q = new ArrayDeque<>();
+
+        q.offer(0);
+        visited[0] = true;
+        int visitedCount = 1;
+
+        while (!q.isEmpty()) {
+            int room = q.poll();
+
+            for (int key : rooms.get(room)) {
+                if (!visited[key]) {
+                    visited[key] = true;
+                    visitedCount++;
+                    q.offer(key);
+                }
+            }
+        }
+
+        return visitedCount == n;
+    }
+}
+```
+
+#### 3-Step Implementation Check
+
+**1. What needs to be stored?**
+
+- Queue stores room numbers.
+- `visited[]` prevents revisiting rooms.
+- `visitedCount` tracks how many rooms are reachable from room `0`.
+
+**2. When should it be updated?**
+
+When a key gives access to an unvisited room, mark that room visited immediately before enqueueing it.
+
+**3. What update operation is needed?**
+
+```java
+visited[key] = true;
+visitedCount++;
+q.offer(key);
+```
+
+#### Complexity
+
+Let `V` be the number of rooms and `E` the total number of keys.
+
+- Time: **O(V + E)**
+- Space: **O(V)**
+
+#### Interview Traps
+
+- Do not start BFS from every room; room `0` is the only initial source.
+- Do not count a room just because its key appears; it must actually be reached through BFS.
+- Mark rooms visited when enqueueing them.
+- The question is reachability, not shortest path.
+
+## LC547 — Number of Provinces: Java Implementation
 
 ```java
 class Solution {
@@ -85,13 +172,8 @@ class Solution {
         while (!q.isEmpty()) {
             int city = q.poll();
 
-            for (int neighbour = 0;
-                 neighbour < isConnected.length;
-                 neighbour++) {
-
-                if (isConnected[city][neighbour] == 1
-                        && !visited[neighbour]) {
-
+            for (int neighbour = 0; neighbour < isConnected.length; neighbour++) {
+                if (isConnected[city][neighbour] == 1 && !visited[neighbour]) {
                     visited[neighbour] = true;
                     q.offer(neighbour);
                 }
@@ -101,7 +183,7 @@ class Solution {
 }
 ```
 
-### Example
+### LC547 Example
 
 ```text
 1 1 0
@@ -121,7 +203,7 @@ Graph:
 
 Answer: `2`
 
-### 3-Step Implementation Check
+### LC547 3-Step Implementation Check
 
 **1. What needs to be stored?**
 
@@ -142,22 +224,14 @@ visited[neighbour] = true;
 q.offer(neighbour);
 ```
 
-### Complexity
+### LC547 Complexity
 
 Because the graph is provided as an `n x n` adjacency matrix and each relevant row is scanned:
 
 - Time: **O(n²)**
 - Space: **O(n)**
 
-### Interview Traps
-
-- Do not increment the province count for every city.
-- Do not run only one BFS; the graph can be disconnected.
-- Do not create a second `visited[]` inside BFS. Pass the same array so all BFS runs share traversal state.
-- Mark neighbours visited when enqueueing them, not when dequeueing.
-- Do not confuse a province with a city. A province is a connected component.
-
-### Pattern to Remember
+### Graph BFS Interview Pattern
 
 ```text
 Unvisited node
