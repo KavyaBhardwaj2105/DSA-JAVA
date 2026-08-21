@@ -1,7 +1,7 @@
 // LeetCode 1091 - Shortest Path in Binary Matrix
 
 import java.util.*;
-
+/* i skipped lc for a day and guess who is solving easy level ques for 2 hours straight */
 /*
  * Logic:
  * BFS is used because every move has the same cost (1).
