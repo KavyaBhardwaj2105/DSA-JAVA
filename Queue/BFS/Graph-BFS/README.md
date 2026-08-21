@@ -145,6 +145,146 @@ Let `V` be the number of rooms and `E` the total number of keys.
 - Mark rooms visited when enqueueing them.
 - The question is reachability, not shortest path.
 
+## LC133 — Clone Graph
+
+### Problem Pattern
+
+**Graph BFS + HashMap Mapping**
+
+LC133 combines graph traversal with a `HashMap<Node, Node>` mapping. The graph may contain cycles, so we must ensure every original node is cloned exactly once. The map serves as both the visited structure and the original-to-clone lookup table.
+
+### Core Idea
+
+```text
+Original Node → Cloned Node
+```
+
+For example:
+
+```text
+1 → 1'
+2 → 2'
+3 → 3'
+```
+
+Start BFS from the given node. Whenever a new original node is discovered, create its clone, store the mapping, and enqueue the original node. For every edge, connect the cloned current node to the cloned neighbour using the map.
+
+### 3-Step Implementation Check
+
+**1. What needs to be stored?**
+
+- Queue stores original graph nodes.
+- `HashMap<Node, Node>` stores `Original → Clone`.
+- The HashMap also tells us whether a node has already been cloned.
+
+**2. When should it be updated?**
+
+When a new neighbour is discovered, create its clone, store the mapping, then enqueue the original neighbour.
+
+**3. What update operation is needed?**
+
+```java
+map.put(neighbour, neighbourClone);
+q.offer(neighbour);
+map.get(current).neighbors.add(map.get(neighbour));
+```
+
+### Algorithm
+
+1. If `node == null`, return `null`.
+2. Create `HashMap<Original, Clone>` and a queue.
+3. Clone the starting node, store the mapping, and enqueue the original node.
+4. Poll one original node at a time.
+5. For each neighbour, check whether it already exists in the map.
+6. If not, create its clone, store it, and enqueue the original neighbour.
+7. Add the mapped clone of the neighbour to the current clone's neighbour list.
+8. Return the clone of the starting node.
+
+### Java Implementation
+
+```java
+class Solution {
+    public Node cloneGraph(Node node) {
+        if (node == null) {
+            return null;
+        }
+
+        Map<Node, Node> map = new HashMap<>();
+        Queue<Node> q = new ArrayDeque<>();
+
+        Node clone = new Node(node.val);
+        map.put(node, clone);
+        q.offer(node);
+
+        while (!q.isEmpty()) {
+            Node current = q.poll();
+
+            for (Node neighbour : current.neighbors) {
+                if (!map.containsKey(neighbour)) {
+                    Node neighbourClone = new Node(neighbour.val);
+                    map.put(neighbour, neighbourClone);
+                    q.offer(neighbour);
+                }
+
+                map.get(current).neighbors.add(map.get(neighbour));
+            }
+        }
+
+        return clone;
+    }
+}
+```
+
+### Why HashMap Instead of `boolean[] visited`?
+
+A boolean array only answers:
+
+```text
+Have I seen this node?
+```
+
+But cloning requires:
+
+```text
+Which clone belongs to this original node?
+```
+
+Therefore we need:
+
+```text
+Original Node → Cloned Node
+```
+
+The map simultaneously prevents duplicate clones and gives us the exact clone needed to rebuild every edge.
+
+### Complexity
+
+Let `V` be the number of nodes and `E` the number of edges.
+
+- Time: **O(V + E)**
+- Space: **O(V)**
+
+### Interview Traps
+
+- A `boolean[] visited` is not enough because we need the actual cloned node.
+- Store the new clone in the map before enqueueing the original node to prevent duplicate clones in cyclic graphs.
+- Never add original nodes to the cloned graph; always use `map.get(...)`.
+- Handle `node == null`.
+
+### Pattern
+
+```text
+Graph BFS
+   +
+HashMap<Original, Clone>
+   ↓
+Traverse original graph
+   ↓
+Create each clone once
+   ↓
+Use mapping to rebuild edges
+```
+
 ## LC547 — Number of Provinces: Java Implementation
 
 ```java
