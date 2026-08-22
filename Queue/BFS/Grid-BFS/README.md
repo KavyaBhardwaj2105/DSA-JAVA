@@ -126,3 +126,118 @@ For `R` rows and `C` columns:
 - No fresh oranges → answer is `0`.
 - Fresh oranges exist but no rotten source can reach them → answer is `-1`.
 - Multiple rotten oranges initially → process all of them simultaneously using multi-source BFS.
+
+## LC1091 — Shortest Path in Binary Matrix
+
+### Pattern
+
+**Single-Source Grid BFS + Shortest Path**
+
+Each `0` cell is traversable. Movement is allowed in all **8 directions**. The task is to find the shortest path from `(0,0)` to `(n-1,n-1)`.
+
+### 3-Step Implementation Check
+
+**1. What needs to be stored?**
+
+- Queue stores `{row, col}` coordinates.
+- The grid itself can act as the visited structure by changing visited `0` cells to `1`.
+- `distance` stores the current BFS level/path length.
+
+**2. When should it be updated?**
+
+- Mark `(0,0)` visited when it is enqueued.
+- Mark a neighbour visited immediately when it is enqueued.
+- Increase `distance` after completing one BFS level.
+
+**3. What update operation is needed?**
+
+```java
+grid[newRow][newCol] = 1;
+q.offer(new int[]{newRow, newCol});
+```
+
+### Algorithm
+
+1. If the start or destination is blocked, return `-1`.
+2. Define all 8 movement directions.
+3. Add `(0,0)` to the queue and mark it visited.
+4. Set `distance = 1`.
+5. Process the queue level by level using `size = q.size()`.
+6. For each cell, check all 8 neighbours.
+7. If a neighbour is inside the grid and is an unvisited `0`, mark it visited and enqueue it.
+8. When the destination is reached, return the current distance.
+9. If BFS ends without reaching it, return `-1`.
+
+### Java Implementation
+
+```java
+class Solution {
+    public int shortestPathBinaryMatrix(int[][] grid) {
+        int n = grid.length;
+
+        if (grid[0][0] == 1 || grid[n - 1][n - 1] == 1) {
+            return -1;
+        }
+
+        int[][] directions = {
+            {-1, -1}, {-1, 0}, {-1, 1},
+            {0, -1},           {0, 1},
+            {1, -1},  {1, 0},  {1, 1}
+        };
+
+        Queue<int[]> q = new ArrayDeque<>();
+        q.offer(new int[]{0, 0});
+        grid[0][0] = 1;
+        int distance = 1;
+
+        while (!q.isEmpty()) {
+            int size = q.size();
+
+            for (int i = 0; i < size; i++) {
+                int[] cell = q.poll();
+                int row = cell[0];
+                int col = cell[1];
+
+                if (row == n - 1 && col == n - 1) {
+                    return distance;
+                }
+
+                for (int[] dir : directions) {
+                    int newRow = row + dir[0];
+                    int newCol = col + dir[1];
+
+                    if (newRow >= 0 && newRow < n
+                            && newCol >= 0 && newCol < n
+                            && grid[newRow][newCol] == 0) {
+                        grid[newRow][newCol] = 1;
+                        q.offer(new int[]{newRow, newCol});
+                    }
+                }
+            }
+
+            distance++;
+        }
+
+        return -1;
+    }
+}
+```
+
+### Why `q.size()` matters
+
+`q.size()` freezes the current BFS level. Every cell in that level has the same shortest distance from the start. Newly discovered cells belong to the next level, so `distance` increases only after the current level is completely processed.
+
+### Complexity
+
+For an `n x n` grid:
+
+- Time: **O(n²)**
+- Space: **O(n²)** in the worst case.
+
+### Interview Traps
+
+- Check blocked start/end before BFS.
+- There are **8 directions**, not 4.
+- Mark a cell visited when enqueueing it.
+- The first time BFS reaches the destination gives the shortest path.
+- `distance` starts at `1` because the starting cell counts as part of the path.
