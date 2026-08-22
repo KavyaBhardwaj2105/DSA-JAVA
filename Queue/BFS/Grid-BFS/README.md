@@ -7,40 +7,28 @@ Grid BFS treats each cell as a graph node. Movement is defined by direction vect
 ```java
 Queue<int[]> q = new ArrayDeque<>();
 int[][] directions = {{1,0}, {-1,0}, {0,1}, {0,-1}};
-
 q.offer(new int[]{startRow, startCol});
-
 while (!q.isEmpty()) {
     int[] cell = q.poll();
-
     for (int[] dir : directions) {
         int nr = cell[0] + dir[0];
         int nc = cell[1] + dir[1];
-
-        // check bounds and whether the neighbour is valid
+        // check bounds and whether neighbour is valid
     }
 }
 ```
 
 ## LC994 — Rotting Oranges
 
-### Pattern
-
-**Multi-Source BFS + Level/Minute Tracking**
+**Pattern:** Multi-Source BFS + Level/Minute Tracking.
 
 All initially rotten oranges are BFS sources. Every BFS level represents one minute because all currently rotten oranges spread simultaneously.
 
 ### 3-Step Implementation Check
 
-**1. What needs to be stored?**
+**1. What needs to be stored?** Queue stores rotten orange coordinates; `fresh` stores remaining fresh oranges; `minutes` stores elapsed levels.
 
-- Queue stores rotten orange coordinates `(row, col)`.
-- `fresh` stores the number of fresh oranges remaining.
-- `minutes` stores elapsed BFS levels.
-
-**2. When should it be updated?**
-
-When a fresh orange is reached by a rotten orange, immediately mark it rotten, decrement `fresh`, and enqueue it for the next minute.
+**2. When should it be updated?** When a fresh orange is reached, immediately mark it rotten, decrement `fresh`, and enqueue it.
 
 **3. What update operation is needed?**
 
@@ -52,102 +40,28 @@ q.offer(new int[]{nr, nc});
 
 ### Algorithm
 
-1. Scan the entire grid.
-2. Add every initially rotten orange to the queue.
-3. Count every fresh orange.
-4. While the queue is not empty and fresh oranges remain, process one complete queue level.
-5. Increment `minutes` once for that level.
-6. For each rotten orange, check its four neighbours.
-7. If a neighbour is fresh, make it rotten, decrement `fresh`, and enqueue it.
-8. Return `minutes` if `fresh == 0`; otherwise return `-1`.
-
-### Java Implementation
-
-```java
-class Solution {
-    public int orangesRotting(int[][] grid) {
-        int rows = grid.length;
-        int cols = grid[0].length;
-        Queue<int[]> q = new ArrayDeque<>();
-        int fresh = 0;
-
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                if (grid[r][c] == 2) {
-                    q.offer(new int[]{r, c});
-                } else if (grid[r][c] == 1) {
-                    fresh++;
-                }
-            }
-        }
-
-        int minutes = 0;
-        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
-        while (!q.isEmpty() && fresh > 0) {
-            int size = q.size();
-            minutes++;
-
-            for (int i = 0; i < size; i++) {
-                int[] cell = q.poll();
-
-                for (int[] dir : directions) {
-                    int nr = cell[0] + dir[0];
-                    int nc = cell[1] + dir[1];
-
-                    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
-                            && grid[nr][nc] == 1) {
-                        grid[nr][nc] = 2;
-                        fresh--;
-                        q.offer(new int[]{nr, nc});
-                    }
-                }
-            }
-        }
-
-        return fresh == 0 ? minutes : -1;
-    }
-}
-```
-
-### Why `q.size()` matters
-
-The queue contains oranges from multiple minutes. `int size = q.size()` freezes the current BFS level. Only those oranges are allowed to spread during the current minute. Newly rotten oranges wait in the queue for the next level.
+1. Scan the grid, enqueue all rotten oranges and count fresh oranges.
+2. Process the queue level by level while fresh oranges remain.
+3. Each level represents one minute.
+4. Spread to the four valid fresh neighbours.
+5. Return `minutes` if all fresh oranges rot; otherwise `-1`.
 
 ### Complexity
 
-For `R` rows and `C` columns:
-
 - Time: **O(R × C)**
-- Space: **O(R × C)** in the worst case.
-
-### Edge Cases
-
-- No fresh oranges → answer is `0`.
-- Fresh oranges exist but no rotten source can reach them → answer is `-1`.
-- Multiple rotten oranges initially → process all of them simultaneously using multi-source BFS.
+- Space: **O(R × C)** worst case.
 
 ## LC1091 — Shortest Path in Binary Matrix
 
-### Pattern
+**Pattern:** Single-Source Grid BFS + Shortest Path.
 
-**Single-Source Grid BFS + Shortest Path**
-
-Each `0` cell is traversable. Movement is allowed in all **8 directions**. The task is to find the shortest path from `(0,0)` to `(n-1,n-1)`.
+Each `0` cell is traversable. Movement is allowed in all **8 directions**. BFS guarantees the first time the destination is reached is the shortest path.
 
 ### 3-Step Implementation Check
 
-**1. What needs to be stored?**
+**1. What needs to be stored?** Queue stores `{row, col}`; the grid can act as visited; `distance` tracks the current BFS level.
 
-- Queue stores `{row, col}` coordinates.
-- The grid itself can act as the visited structure by changing visited `0` cells to `1`.
-- `distance` stores the current BFS level/path length.
-
-**2. When should it be updated?**
-
-- Mark `(0,0)` visited when it is enqueued.
-- Mark a neighbour visited immediately when it is enqueued.
-- Increase `distance` after completing one BFS level.
+**2. When should it be updated?** Mark cells visited when enqueuing them. Increase `distance` after completing one level.
 
 **3. What update operation is needed?**
 
@@ -156,88 +70,140 @@ grid[newRow][newCol] = 1;
 q.offer(new int[]{newRow, newCol});
 ```
 
+### Complexity
+
+- Time: **O(n²)**
+- Space: **O(n²)** worst case.
+
+## LC542 — 01 Matrix
+
+### Pattern
+
+**Multi-Source BFS + Distance to Nearest Zero**
+
+For every cell containing `1`, find the distance to the nearest `0`. Every `0` is a BFS source, so we start BFS from all zeros simultaneously.
+
+### Why Multi-Source BFS?
+
+Running a separate BFS from every `1` repeats work. Instead:
+
+```text
+All 0s
+ ↓
+BFS simultaneously
+ ↓
+Nearest cells get distance 1
+ ↓
+Next cells get distance 2
+ ↓
+...
+```
+
+Because BFS expands in layers, the first time a `1` is reached is through its nearest `0`.
+
+### 3-Step Implementation Check
+
+**1. What needs to be stored?** Queue stores coordinates. Every `0` is initially placed in the queue. The matrix stores the final distance and can represent visited state.
+
+**2. When should it be updated?** Put all `0`s into the queue at initialization. Mark every `1` as unvisited using `-1`. When an unvisited neighbour is reached, assign its distance and enqueue it.
+
+**3. What update operation is needed?**
+
+```java
+mat[nr][nc] = mat[row][col] + 1;
+q.offer(new int[]{nr, nc});
+```
+
 ### Algorithm
 
-1. If the start or destination is blocked, return `-1`.
-2. Define all 8 movement directions.
-3. Add `(0,0)` to the queue and mark it visited.
-4. Set `distance = 1`.
-5. Process the queue level by level using `size = q.size()`.
-6. For each cell, check all 8 neighbours.
-7. If a neighbour is inside the grid and is an unvisited `0`, mark it visited and enqueue it.
-8. When the destination is reached, return the current distance.
-9. If BFS ends without reaching it, return `-1`.
+1. Scan the matrix.
+2. Add every `0` cell to the queue.
+3. Change every `1` to `-1` to represent an unvisited cell.
+4. Run BFS using four directions.
+5. When an unvisited cell is reached, its distance is the current cell's distance plus `1`.
+6. Store that distance and enqueue the cell.
+7. Return the matrix.
 
 ### Java Implementation
 
 ```java
 class Solution {
-    public int shortestPathBinaryMatrix(int[][] grid) {
-        int n = grid.length;
-
-        if (grid[0][0] == 1 || grid[n - 1][n - 1] == 1) {
-            return -1;
-        }
-
-        int[][] directions = {
-            {-1, -1}, {-1, 0}, {-1, 1},
-            {0, -1},           {0, 1},
-            {1, -1},  {1, 0},  {1, 1}
-        };
-
+    public int[][] updateMatrix(int[][] mat) {
+        int rows = mat.length;
+        int cols = mat[0].length;
         Queue<int[]> q = new ArrayDeque<>();
-        q.offer(new int[]{0, 0});
-        grid[0][0] = 1;
-        int distance = 1;
 
-        while (!q.isEmpty()) {
-            int size = q.size();
-
-            for (int i = 0; i < size; i++) {
-                int[] cell = q.poll();
-                int row = cell[0];
-                int col = cell[1];
-
-                if (row == n - 1 && col == n - 1) {
-                    return distance;
-                }
-
-                for (int[] dir : directions) {
-                    int newRow = row + dir[0];
-                    int newCol = col + dir[1];
-
-                    if (newRow >= 0 && newRow < n
-                            && newCol >= 0 && newCol < n
-                            && grid[newRow][newCol] == 0) {
-                        grid[newRow][newCol] = 1;
-                        q.offer(new int[]{newRow, newCol});
-                    }
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                if (mat[r][c] == 0) {
+                    q.offer(new int[]{r, c});
+                } else {
+                    mat[r][c] = -1;
                 }
             }
-
-            distance++;
         }
 
-        return -1;
+        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+        while (!q.isEmpty()) {
+            int[] cell = q.poll();
+            int row = cell[0];
+            int col = cell[1];
+
+            for (int[] dir : directions) {
+                int nr = row + dir[0];
+                int nc = col + dir[1];
+
+                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
+                        && mat[nr][nc] == -1) {
+                    mat[nr][nc] = mat[row][col] + 1;
+                    q.offer(new int[]{nr, nc});
+                }
+            }
+        }
+
+        return mat;
     }
 }
 ```
 
-### Why `q.size()` matters
+### Example
 
-`q.size()` freezes the current BFS level. Every cell in that level has the same shortest distance from the start. Newly discovered cells belong to the next level, so `distance` increases only after the current level is completely processed.
+Input:
+
+```text
+0 0 0
+0 1 0
+1 1 1
+```
+
+Output:
+
+```text
+0 0 0
+0 1 0
+1 2 1
+```
 
 ### Complexity
 
-For an `n x n` grid:
+For `R × C` cells:
 
-- Time: **O(n²)**
-- Space: **O(n²)** in the worst case.
+- Time: **O(R × C)** — every cell enters the queue at most once.
+- Space: **O(R × C)** worst case for the queue.
 
 ### Interview Traps
 
-- Check blocked start/end before BFS.
-- There are **8 directions**, not 4.
-- Mark a cell visited when enqueueing it.
-- The first time BFS reaches the destination gives the shortest path.
-- `distance` starts at `1` because the starting cell counts as part of the path.
+- Do not start BFS separately from every `1`.
+- All zeros must be added to the queue initially.
+- Mark `1`s as unvisited before BFS.
+- Mark/update a cell when enqueueing it so it is not processed multiple times.
+- This is **multi-source BFS**, not ordinary single-source BFS.
+
+## BFS Pattern Summary
+
+```text
+994  → Multi-source BFS + time
+1091 → Single-source BFS + shortest path
+542  → Multi-source BFS + nearest distance
+```
