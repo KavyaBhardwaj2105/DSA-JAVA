@@ -85,21 +85,7 @@ For every cell containing `1`, find the distance to the nearest `0`. Every `0` i
 
 ### Why Multi-Source BFS?
 
-Running a separate BFS from every `1` repeats work. Instead:
-
-```text
-All 0s
- ↓
-BFS simultaneously
- ↓
-Nearest cells get distance 1
- ↓
-Next cells get distance 2
- ↓
-...
-```
-
-Because BFS expands in layers, the first time a `1` is reached is through its nearest `0`.
+Running a separate BFS from every `1` repeats work. Instead, all zeros enter the queue initially and BFS expands outward together. Because BFS expands in layers, the first time a `1` is reached is through its nearest `0`.
 
 ### 3-Step Implementation Check
 
@@ -114,96 +100,165 @@ mat[nr][nc] = mat[row][col] + 1;
 q.offer(new int[]{nr, nc});
 ```
 
+### Complexity
+
+- Time: **O(R × C)**
+- Space: **O(R × C)** worst case.
+
+## LC1162 — As Far from Land as Possible
+
+### Pattern
+
+**Multi-Source BFS + Maximum Distance from Land**
+
+Every land cell (`1`) is a BFS source. We expand from all land cells simultaneously into water cells (`0`). The final BFS layer represents the water cells that are farthest from their nearest land.
+
+### Core Idea
+
+```text
+All land cells
+      ↓
+Multi-source BFS
+      ↓
+nearest water cells → distance 1
+      ↓
+next water layer → distance 2
+      ↓
+...
+      ↓
+last layer = maximum distance
+```
+
+The problem asks for the maximum distance of a water cell from the **nearest** land cell. Multi-source BFS naturally computes that nearest distance for every water cell.
+
+### 3-Step Implementation Check
+
+**1. What needs to be stored?**
+
+- Queue stores coordinates of all land cells initially.
+- The grid acts as the visited structure by changing reached water cells from `0` to `1`.
+- `distance` tracks the BFS layer.
+
+**2. When should it be updated?**
+
+- Add every land cell to the queue before BFS starts.
+- When an unvisited water cell is reached, mark it visited immediately and enqueue it.
+- Increase `distance` once per BFS level.
+
+**3. What update operation is needed?**
+
+```java
+grid[newRow][newCol] = 1;
+q.offer(new int[]{newRow, newCol});
+```
+
 ### Algorithm
 
-1. Scan the matrix.
-2. Add every `0` cell to the queue.
-3. Change every `1` to `-1` to represent an unvisited cell.
-4. Run BFS using four directions.
-5. When an unvisited cell is reached, its distance is the current cell's distance plus `1`.
-6. Store that distance and enqueue the cell.
-7. Return the matrix.
+1. Scan the grid and enqueue every land cell.
+2. Count the land cells.
+3. If there is no land or no water, return `-1`.
+4. Run BFS simultaneously from all land cells.
+5. Process the queue level by level using `size = q.size()`.
+6. For each cell, explore its four neighbours.
+7. If a neighbour is an unvisited water cell, mark it visited and enqueue it.
+8. Increment `distance` for each completed BFS layer.
+9. Return the final `distance`.
 
 ### Java Implementation
 
 ```java
 class Solution {
-    public int[][] updateMatrix(int[][] mat) {
-        int rows = mat.length;
-        int cols = mat[0].length;
+    public int maxDistance(int[][] grid) {
+        int n = grid.length;
         Queue<int[]> q = new ArrayDeque<>();
+        int landCount = 0;
 
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                if (mat[r][c] == 0) {
-                    q.offer(new int[]{r, c});
-                } else {
-                    mat[r][c] = -1;
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                if (grid[row][col] == 1) {
+                    q.offer(new int[]{row, col});
+                    landCount++;
                 }
             }
         }
 
-        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        if (landCount == 0 || landCount == n * n) {
+            return -1;
+        }
+
+        int[][] directions = {
+            {-1, 0}, {1, 0}, {0, -1}, {0, 1}
+        };
+        int distance = -1;
 
         while (!q.isEmpty()) {
-            int[] cell = q.poll();
-            int row = cell[0];
-            int col = cell[1];
+            int size = q.size();
+            distance++;
 
-            for (int[] dir : directions) {
-                int nr = row + dir[0];
-                int nc = col + dir[1];
+            for (int i = 0; i < size; i++) {
+                int[] cell = q.poll();
+                int row = cell[0];
+                int col = cell[1];
 
-                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
-                        && mat[nr][nc] == -1) {
-                    mat[nr][nc] = mat[row][col] + 1;
-                    q.offer(new int[]{nr, nc});
+                for (int[] dir : directions) {
+                    int newRow = row + dir[0];
+                    int newCol = col + dir[1];
+
+                    if (newRow >= 0 && newRow < n
+                            && newCol >= 0 && newCol < n
+                            && grid[newRow][newCol] == 0) {
+                        grid[newRow][newCol] = 1;
+                        q.offer(new int[]{newRow, newCol});
+                    }
                 }
             }
         }
 
-        return mat;
+        return distance;
     }
 }
 ```
 
 ### Example
 
-Input:
-
 ```text
+1 0 0
 0 0 0
-0 1 0
-1 1 1
+0 0 1
 ```
 
-Output:
+BFS starts from both `1`s simultaneously. The center region is reached from the nearest land source first. The final BFS layer gives the maximum distance from land.
 
-```text
-0 0 0
-0 1 0
-1 2 1
-```
+### Why Multi-Source BFS?
+
+If we ran BFS separately from every water cell, we would repeat a large amount of work. Starting from every land cell at once means every water cell is reached at its minimum distance from the nearest land.
+
+### Edge Cases
+
+- **All water:** no land exists, so answer is `-1`.
+- **All land:** no water exists, so answer is `-1`.
+- **Mixed grid:** BFS expands from all land cells and the final level is the answer.
 
 ### Complexity
 
-For `R × C` cells:
+For an `n × n` grid:
 
-- Time: **O(R × C)** — every cell enters the queue at most once.
-- Space: **O(R × C)** worst case for the queue.
+- Time: **O(n²)** — each cell is processed at most once.
+- Space: **O(n²)** worst case for the queue.
 
 ### Interview Traps
 
-- Do not start BFS separately from every `1`.
-- All zeros must be added to the queue initially.
-- Mark `1`s as unvisited before BFS.
-- Mark/update a cell when enqueueing it so it is not processed multiple times.
-- This is **multi-source BFS**, not ordinary single-source BFS.
+- This is **multi-source BFS**, not one BFS from one arbitrary land cell.
+- The distance is to the **nearest** land, and we want the maximum among those distances.
+- Do not forget the all-land and all-water cases.
+- Mark water visited when enqueueing it.
+- The final BFS level gives the maximum distance.
 
 ## BFS Pattern Summary
 
 ```text
 994  → Multi-source BFS + time
 1091 → Single-source BFS + shortest path
-542  → Multi-source BFS + nearest distance
+542  → Multi-source BFS + nearest distance to zero
+1162 → Multi-source BFS + maximum distance from land
 ```
