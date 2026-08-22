@@ -148,33 +148,11 @@ q.offer(new int[]{newRow, newCol});
 
 The entrance is the BFS source. Each `.` cell is traversable and each move costs one step. An exit is any open cell on the boundary, except the entrance itself. Since BFS explores level by level, the first boundary cell discovered is the nearest exit.
 
-### Core Idea
-
-```text
-Entrance
-   ↓
-BFS level 1
-   ↓
-BFS level 2
-   ↓
-...
-   ↓
-First boundary '.' reached = nearest exit
-```
-
-The entrance is marked visited immediately, so even if it lies on the boundary, it cannot be incorrectly returned as an exit.
-
 ### 3-Step Implementation Check
 
-**1. What needs to be stored?**
+**1. What needs to be stored?** Queue stores `{row, col}`; `distance` stores the current BFS level; the maze stores visited state.
 
-- Queue stores `{row, col}` coordinates.
-- `distance` stores the current BFS level.
-- The maze itself stores visited state by changing visited `.` cells to `+`.
-
-**2. When should it be updated?**
-
-When a valid unvisited `.` neighbour is discovered, check whether it is a boundary exit. If it is not an exit, mark it visited and enqueue it.
+**2. When should it be updated?** When a valid unvisited `.` neighbour is discovered, check whether it is a boundary exit. If it is not an exit, mark it visited and enqueue it.
 
 **3. What update operation is needed?**
 
@@ -183,85 +161,138 @@ maze[newRow][newCol] = '+';
 q.offer(new int[]{newRow, newCol});
 ```
 
+### Complexity
+
+- Time: **O(R × C)**
+- Space: **O(R × C)** worst case.
+
+## LC130 — Surrounded Regions
+
+### Pattern
+
+**Boundary Multi-Source BFS + Region Capture**
+
+The key observation is that an `O` connected to the boundary cannot be surrounded. Therefore, instead of starting BFS from every `O`, start BFS from **all boundary `O` cells simultaneously**.
+
+Boundary-connected `O`s are temporarily marked as safe using `#`. After BFS, every remaining `O` is enclosed and can be converted to `X`. Finally, restore `#` back to `O`.
+
+### 3-Step Implementation Check
+
+**1. What needs to be stored?**
+
+- Queue stores `{row, col}` coordinates.
+- All boundary `O`s are initial BFS sources.
+- The board itself acts as the visited structure using `#`.
+
+**2. When should it be updated?**
+
+- When a boundary `O` is found, mark it `#` and enqueue it.
+- During BFS, when an adjacent `O` is found, immediately mark it `#` before enqueueing.
+
+**3. What update operation is needed?**
+
+```java
+board[newRow][newCol] = '#';
+q.offer(new int[]{newRow, newCol});
+```
+
+After BFS:
+
+```java
+if (board[row][col] == 'O') board[row][col] = 'X';
+else if (board[row][col] == '#') board[row][col] = 'O';
+```
+
 ### Algorithm
 
-1. Add the entrance to the queue.
-2. Mark the entrance visited.
-3. Process the queue level by level.
-4. Explore the four adjacent cells.
-5. Ignore out-of-bounds, walls, and visited cells.
-6. If a newly discovered open cell is on the boundary, return the current distance.
-7. Otherwise mark it visited and enqueue it.
-8. If BFS finishes without finding an exit, return `-1`.
+1. Scan the first/last row and first/last column.
+2. Add every boundary `O` to the queue and mark it `#`.
+3. Run BFS from all these boundary sources.
+4. Mark every boundary-connected `O` as `#`.
+5. Scan the entire board.
+6. Convert remaining `O` to `X`.
+7. Convert `#` back to `O`.
 
 ### Java Implementation
 
 ```java
 class Solution {
-    public int nearestExit(char[][] maze, int[] entrance) {
-        int rows = maze.length;
-        int cols = maze[0].length;
-
+    public void solve(char[][] board) {
+        int rows = board.length;
+        int cols = board[0].length;
         Queue<int[]> q = new ArrayDeque<>();
-        q.offer(new int[]{entrance[0], entrance[1]});
-        maze[entrance[0]][entrance[1]] = '+';
+
+        for (int row = 0; row < rows; row++) {
+            if (board[row][0] == 'O') {
+                q.offer(new int[]{row, 0});
+                board[row][0] = '#';
+            }
+            if (cols > 1 && board[row][cols - 1] == 'O') {
+                q.offer(new int[]{row, cols - 1});
+                board[row][cols - 1] = '#';
+            }
+        }
+
+        for (int col = 0; col < cols; col++) {
+            if (board[0][col] == 'O') {
+                q.offer(new int[]{0, col});
+                board[0][col] = '#';
+            }
+            if (rows > 1 && board[rows - 1][col] == 'O') {
+                q.offer(new int[]{rows - 1, col});
+                board[rows - 1][col] = '#';
+            }
+        }
 
         int[][] directions = {
             {-1, 0}, {1, 0}, {0, -1}, {0, 1}
         };
-        int distance = 0;
 
         while (!q.isEmpty()) {
-            int size = q.size();
-            distance++;
+            int[] cell = q.poll();
+            int row = cell[0];
+            int col = cell[1];
 
-            for (int i = 0; i < size; i++) {
-                int[] cell = q.poll();
-                int row = cell[0];
-                int col = cell[1];
+            for (int[] dir : directions) {
+                int newRow = row + dir[0];
+                int newCol = col + dir[1];
 
-                for (int[] dir : directions) {
-                    int newRow = row + dir[0];
-                    int newCol = col + dir[1];
-
-                    if (newRow < 0 || newRow >= rows || newCol < 0 || newCol >= cols) {
-                        continue;
-                    }
-
-                    if (maze[newRow][newCol] != '.') {
-                        continue;
-                    }
-
-                    if (newRow == 0 || newRow == rows - 1
-                            || newCol == 0 || newCol == cols - 1) {
-                        return distance;
-                    }
-
-                    maze[newRow][newCol] = '+';
+                if (newRow >= 0 && newRow < rows
+                        && newCol >= 0 && newCol < cols
+                        && board[newRow][newCol] == 'O') {
+                    board[newRow][newCol] = '#';
                     q.offer(new int[]{newRow, newCol});
                 }
             }
         }
 
-        return -1;
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (board[row][col] == 'O') {
+                    board[row][col] = 'X';
+                } else if (board[row][col] == '#') {
+                    board[row][col] = 'O';
+                }
+            }
+        }
     }
 }
 ```
 
 ### Complexity
 
-For an `R × C` maze:
+For an `R × C` board:
 
-- Time: **O(R × C)** — each cell is processed at most once.
+- Time: **O(R × C)** — each cell is processed at most a constant number of times.
 - Space: **O(R × C)** worst case for the queue.
 
 ### Interview Traps
 
-- The **entrance itself is never an exit**.
-- Mark cells visited when enqueueing them.
-- The first boundary cell discovered by BFS gives the shortest exit distance.
-- Movement is only in four directions.
-- Return `-1` if no exit is reachable.
+- Do **not** BFS from every `O`; that wastes work.
+- Start from boundary `O`s because they are guaranteed to be safe.
+- Mark a cell visited when enqueueing it.
+- The problem is about **connectivity to the boundary**, not shortest path.
+- Restore safe `O`s after converting enclosed regions.
 
 ## BFS Pattern Summary
 
@@ -271,4 +302,5 @@ For an `R × C` maze:
 542  → Multi-source BFS + nearest distance to zero
 1162 → Multi-source BFS + maximum distance from land
 1926 → Single-source BFS + nearest boundary exit
+130  → Boundary multi-source BFS + region capture
 ```
