@@ -113,37 +113,11 @@ q.offer(new int[]{nr, nc});
 
 Every land cell (`1`) is a BFS source. We expand from all land cells simultaneously into water cells (`0`). The final BFS layer represents the water cells that are farthest from their nearest land.
 
-### Core Idea
-
-```text
-All land cells
-      ↓
-Multi-source BFS
-      ↓
-nearest water cells → distance 1
-      ↓
-next water layer → distance 2
-      ↓
-...
-      ↓
-last layer = maximum distance
-```
-
-The problem asks for the maximum distance of a water cell from the **nearest** land cell. Multi-source BFS naturally computes that nearest distance for every water cell.
-
 ### 3-Step Implementation Check
 
-**1. What needs to be stored?**
+**1. What needs to be stored?** Queue stores coordinates of all land cells initially; the grid acts as visited; `distance` tracks the BFS layer.
 
-- Queue stores coordinates of all land cells initially.
-- The grid acts as the visited structure by changing reached water cells from `0` to `1`.
-- `distance` tracks the BFS layer.
-
-**2. When should it be updated?**
-
-- Add every land cell to the queue before BFS starts.
-- When an unvisited water cell is reached, mark it visited immediately and enqueue it.
-- Increase `distance` once per BFS level.
+**2. When should it be updated?** Add every land cell before BFS. When an unvisited water cell is reached, mark it visited and enqueue it. Increase `distance` once per level.
 
 **3. What update operation is needed?**
 
@@ -155,41 +129,87 @@ q.offer(new int[]{newRow, newCol});
 ### Algorithm
 
 1. Scan the grid and enqueue every land cell.
-2. Count the land cells.
-3. If there is no land or no water, return `-1`.
-4. Run BFS simultaneously from all land cells.
-5. Process the queue level by level using `size = q.size()`.
-6. For each cell, explore its four neighbours.
-7. If a neighbour is an unvisited water cell, mark it visited and enqueue it.
-8. Increment `distance` for each completed BFS layer.
-9. Return the final `distance`.
+2. If there is no land or no water, return `-1`.
+3. Run BFS simultaneously from all land cells.
+4. Process the queue level by level.
+5. Enqueue every unvisited water neighbour and mark it visited.
+6. The final BFS level is the maximum distance.
+
+### Complexity
+
+- Time: **O(n²)**
+- Space: **O(n²)** worst case.
+
+## LC1926 — Nearest Exit from Entrance in Maze
+
+### Pattern
+
+**Single-Source BFS + Shortest Path + Boundary Exit**
+
+The entrance is the BFS source. Each `.` cell is traversable and each move costs one step. An exit is any open cell on the boundary, except the entrance itself. Since BFS explores level by level, the first boundary cell discovered is the nearest exit.
+
+### Core Idea
+
+```text
+Entrance
+   ↓
+BFS level 1
+   ↓
+BFS level 2
+   ↓
+...
+   ↓
+First boundary '.' reached = nearest exit
+```
+
+The entrance is marked visited immediately, so even if it lies on the boundary, it cannot be incorrectly returned as an exit.
+
+### 3-Step Implementation Check
+
+**1. What needs to be stored?**
+
+- Queue stores `{row, col}` coordinates.
+- `distance` stores the current BFS level.
+- The maze itself stores visited state by changing visited `.` cells to `+`.
+
+**2. When should it be updated?**
+
+When a valid unvisited `.` neighbour is discovered, check whether it is a boundary exit. If it is not an exit, mark it visited and enqueue it.
+
+**3. What update operation is needed?**
+
+```java
+maze[newRow][newCol] = '+';
+q.offer(new int[]{newRow, newCol});
+```
+
+### Algorithm
+
+1. Add the entrance to the queue.
+2. Mark the entrance visited.
+3. Process the queue level by level.
+4. Explore the four adjacent cells.
+5. Ignore out-of-bounds, walls, and visited cells.
+6. If a newly discovered open cell is on the boundary, return the current distance.
+7. Otherwise mark it visited and enqueue it.
+8. If BFS finishes without finding an exit, return `-1`.
 
 ### Java Implementation
 
 ```java
 class Solution {
-    public int maxDistance(int[][] grid) {
-        int n = grid.length;
+    public int nearestExit(char[][] maze, int[] entrance) {
+        int rows = maze.length;
+        int cols = maze[0].length;
+
         Queue<int[]> q = new ArrayDeque<>();
-        int landCount = 0;
-
-        for (int row = 0; row < n; row++) {
-            for (int col = 0; col < n; col++) {
-                if (grid[row][col] == 1) {
-                    q.offer(new int[]{row, col});
-                    landCount++;
-                }
-            }
-        }
-
-        if (landCount == 0 || landCount == n * n) {
-            return -1;
-        }
+        q.offer(new int[]{entrance[0], entrance[1]});
+        maze[entrance[0]][entrance[1]] = '+';
 
         int[][] directions = {
             {-1, 0}, {1, 0}, {0, -1}, {0, 1}
         };
-        int distance = -1;
+        int distance = 0;
 
         while (!q.isEmpty()) {
             int size = q.size();
@@ -204,61 +224,51 @@ class Solution {
                     int newRow = row + dir[0];
                     int newCol = col + dir[1];
 
-                    if (newRow >= 0 && newRow < n
-                            && newCol >= 0 && newCol < n
-                            && grid[newRow][newCol] == 0) {
-                        grid[newRow][newCol] = 1;
-                        q.offer(new int[]{newRow, newCol});
+                    if (newRow < 0 || newRow >= rows || newCol < 0 || newCol >= cols) {
+                        continue;
                     }
+
+                    if (maze[newRow][newCol] != '.') {
+                        continue;
+                    }
+
+                    if (newRow == 0 || newRow == rows - 1
+                            || newCol == 0 || newCol == cols - 1) {
+                        return distance;
+                    }
+
+                    maze[newRow][newCol] = '+';
+                    q.offer(new int[]{newRow, newCol});
                 }
             }
         }
 
-        return distance;
+        return -1;
     }
 }
 ```
 
-### Example
-
-```text
-1 0 0
-0 0 0
-0 0 1
-```
-
-BFS starts from both `1`s simultaneously. The center region is reached from the nearest land source first. The final BFS layer gives the maximum distance from land.
-
-### Why Multi-Source BFS?
-
-If we ran BFS separately from every water cell, we would repeat a large amount of work. Starting from every land cell at once means every water cell is reached at its minimum distance from the nearest land.
-
-### Edge Cases
-
-- **All water:** no land exists, so answer is `-1`.
-- **All land:** no water exists, so answer is `-1`.
-- **Mixed grid:** BFS expands from all land cells and the final level is the answer.
-
 ### Complexity
 
-For an `n × n` grid:
+For an `R × C` maze:
 
-- Time: **O(n²)** — each cell is processed at most once.
-- Space: **O(n²)** worst case for the queue.
+- Time: **O(R × C)** — each cell is processed at most once.
+- Space: **O(R × C)** worst case for the queue.
 
 ### Interview Traps
 
-- This is **multi-source BFS**, not one BFS from one arbitrary land cell.
-- The distance is to the **nearest** land, and we want the maximum among those distances.
-- Do not forget the all-land and all-water cases.
-- Mark water visited when enqueueing it.
-- The final BFS level gives the maximum distance.
+- The **entrance itself is never an exit**.
+- Mark cells visited when enqueueing them.
+- The first boundary cell discovered by BFS gives the shortest exit distance.
+- Movement is only in four directions.
+- Return `-1` if no exit is reachable.
 
 ## BFS Pattern Summary
 
 ```text
 994  → Multi-source BFS + time
-1091 → Single-source BFS + shortest path
+1091 → Single-source BFS + shortest path + 8 directions
 542  → Multi-source BFS + nearest distance to zero
 1162 → Multi-source BFS + maximum distance from land
+1926 → Single-source BFS + nearest boundary exit
 ```
