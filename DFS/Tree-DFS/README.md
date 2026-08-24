@@ -75,34 +75,63 @@ Inorder means **Left → Root → Right**. The current node is processed only af
 2. **Update when:** after completing the left subtree and before traversing the right subtree.
 3. **Operation:** `result.add(root.val)`.
 
+### Complexity
+
+- Time: **O(N)**
+- Space: **O(H)** recursion stack.
+
+## LC145 — Binary Tree Postorder Traversal
+
+### Pattern
+
+**Tree DFS + Recursive Postorder Traversal**
+
+### Logic
+
+Postorder means **Left → Right → Root**. The current node is processed only after both subtrees have been completely traversed.
+
+```text
+   DFS left subtree
+          ↓
+   DFS right subtree
+          ↓
+   process current node
+```
+
+### 3-Step Implementation Check
+
+1. **Store:** `List<Integer>` stores node values in postorder sequence.
+2. **Update when:** after completing both left and right subtree traversals.
+3. **Operation:** `result.add(root.val)`.
+
 ### Algorithm
 
 1. Create an empty result list.
 2. Start recursive DFS from the root.
 3. If the current node is `null`, return.
 4. Recursively traverse the left child.
-5. Add the current node's value to the result.
-6. Recursively traverse the right child.
+5. Recursively traverse the right child.
+6. Add the current node's value to the result.
 7. Return the result list.
 
 ### Java Solution
 
 ```java
 class Solution {
-    public List<Integer> inorderTraversal(TreeNode root) {
+    public List<Integer> postorderTraversal(TreeNode root) {
         List<Integer> result = new ArrayList<>();
-        inorder(root, result);
+        postorder(root, result);
         return result;
     }
 
-    private void inorder(TreeNode root, List<Integer> result) {
+    private void postorder(TreeNode root, List<Integer> result) {
         if (root == null) {
             return;
         }
 
-        inorder(root.left, result);
+        postorder(root.left, result);
+        postorder(root.right, result);
         result.add(root.val);
-        inorder(root.right, result);
     }
 }
 ```
@@ -116,8 +145,8 @@ class Solution {
 
 ### Interview Traps
 
-- Inorder is **Left → Root → Right**.
-- The current node must be processed after the left subtree and before the right subtree.
+- Postorder is **Left → Right → Root**.
+- The current node must be processed after both recursive calls.
 - Tree DFS normally does not need a `visited[]` array because a tree has no cycles in its parent-child structure.
 - Recursive DFS uses the call stack; iterative DFS uses an explicit stack.
 
@@ -127,5 +156,6 @@ class Solution {
 |---|---|---|
 | LC144 | Preorder + Recursive DFS | Completed |
 | LC94 | Inorder + Recursive DFS | Completed |
+| LC145 | Postorder + Recursive DFS | Completed |
 
 More Tree DFS problems will be added as they are completed.
