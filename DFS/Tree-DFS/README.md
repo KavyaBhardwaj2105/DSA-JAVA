@@ -30,8 +30,6 @@ The DFS engine is the same; only the position of `process node` changes.
 
 **Tree DFS + Recursive Preorder Traversal**
 
-Preorder means the current node is processed before its left and right subtrees.
-
 ### Logic
 
 ```text
@@ -44,27 +42,46 @@ process current node
 
 ### 3-Step Implementation Check
 
-**1. What needs to be stored?**
+1. **Store:** `List<Integer>` stores node values in preorder sequence.
+2. **Update when:** current node is processed before either child.
+3. **Operation:** `result.add(root.val)`.
 
-A `List<Integer>` stores node values in preorder sequence.
+### Complexity
 
-**2. When should it be updated?**
+- Time: **O(N)**
+- Space: **O(H)** recursion stack.
 
-The current node is added before traversing either child.
+## LC94 — Binary Tree Inorder Traversal
 
-**3. What update operation is needed?**
+### Pattern
 
-```java
-result.add(root.val);
+**Tree DFS + Recursive Inorder Traversal**
+
+### Logic
+
+Inorder means **Left → Root → Right**. The current node is processed only after its left subtree has been completely traversed and before the right subtree is traversed.
+
+```text
+   DFS left subtree
+          ↓
+   process current node
+          ↓
+   DFS right subtree
 ```
+
+### 3-Step Implementation Check
+
+1. **Store:** `List<Integer>` stores node values in inorder sequence.
+2. **Update when:** after completing the left subtree and before traversing the right subtree.
+3. **Operation:** `result.add(root.val)`.
 
 ### Algorithm
 
 1. Create an empty result list.
 2. Start recursive DFS from the root.
 3. If the current node is `null`, return.
-4. Add the current node's value to the result.
-5. Recursively traverse the left child.
+4. Recursively traverse the left child.
+5. Add the current node's value to the result.
 6. Recursively traverse the right child.
 7. Return the result list.
 
@@ -72,20 +89,20 @@ result.add(root.val);
 
 ```java
 class Solution {
-    public List<Integer> preorderTraversal(TreeNode root) {
+    public List<Integer> inorderTraversal(TreeNode root) {
         List<Integer> result = new ArrayList<>();
-        preorder(root, result);
+        inorder(root, result);
         return result;
     }
 
-    private void preorder(TreeNode root, List<Integer> result) {
+    private void inorder(TreeNode root, List<Integer> result) {
         if (root == null) {
             return;
         }
 
+        inorder(root.left, result);
         result.add(root.val);
-        preorder(root.left, result);
-        preorder(root.right, result);
+        inorder(root.right, result);
     }
 }
 ```
@@ -99,8 +116,8 @@ class Solution {
 
 ### Interview Traps
 
-- Preorder is **Root → Left → Right**.
-- `process node` must happen before both recursive calls.
+- Inorder is **Left → Root → Right**.
+- The current node must be processed after the left subtree and before the right subtree.
 - Tree DFS normally does not need a `visited[]` array because a tree has no cycles in its parent-child structure.
 - Recursive DFS uses the call stack; iterative DFS uses an explicit stack.
 
@@ -109,6 +126,6 @@ class Solution {
 | Problem | Pattern | Status |
 |---|---|---|
 | LC144 | Preorder + Recursive DFS | Completed |
-| LC94 | Inorder DFS | Next |
+| LC94 | Inorder + Recursive DFS | Completed |
 
 More Tree DFS problems will be added as they are completed.
