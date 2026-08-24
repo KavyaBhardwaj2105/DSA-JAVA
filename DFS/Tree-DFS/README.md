@@ -26,112 +26,111 @@ The DFS engine is the same; only the position of `process node` changes.
 
 ## LC144 — Binary Tree Preorder Traversal
 
-### Pattern
+**Pattern:** Tree DFS + Recursive Preorder
 
-**Tree DFS + Recursive Preorder Traversal**
-
-### Logic
+**Logic:** Process current node first, then recursively traverse left and right.
 
 ```text
-process current node
-        ↓
-   DFS left subtree
-        ↓
-   DFS right subtree
+process node → DFS left → DFS right
 ```
 
-### 3-Step Implementation Check
+**3-Step Check:**
+1. Store node values in `List<Integer>`.
+2. Update before either child traversal.
+3. Use `result.add(root.val)`.
 
-1. **Store:** `List<Integer>` stores node values in preorder sequence.
-2. **Update when:** current node is processed before either child.
-3. **Operation:** `result.add(root.val)`.
-
-### Complexity
-
-- Time: **O(N)**
-- Space: **O(H)** recursion stack.
+**Complexity:** Time `O(N)`, Space `O(H)`.
 
 ## LC94 — Binary Tree Inorder Traversal
 
-### Pattern
+**Pattern:** Tree DFS + Recursive Inorder
 
-**Tree DFS + Recursive Inorder Traversal**
-
-### Logic
-
-Inorder means **Left → Root → Right**. The current node is processed only after its left subtree has been completely traversed and before the right subtree is traversed.
+**Logic:** Traverse left subtree, process current node, then traverse right subtree.
 
 ```text
-   DFS left subtree
-          ↓
-   process current node
-          ↓
-   DFS right subtree
+DFS left → process node → DFS right
 ```
 
-### 3-Step Implementation Check
+**3-Step Check:**
+1. Store node values in `List<Integer>`.
+2. Update after the left subtree and before the right subtree.
+3. Use `result.add(root.val)`.
 
-1. **Store:** `List<Integer>` stores node values in inorder sequence.
-2. **Update when:** after completing the left subtree and before traversing the right subtree.
-3. **Operation:** `result.add(root.val)`.
-
-### Complexity
-
-- Time: **O(N)**
-- Space: **O(H)** recursion stack.
+**Complexity:** Time `O(N)`, Space `O(H)`.
 
 ## LC145 — Binary Tree Postorder Traversal
 
+**Pattern:** Tree DFS + Recursive Postorder
+
+**Logic:** Traverse both children first, then process the current node.
+
+```text
+DFS left → DFS right → process node
+```
+
+**3-Step Check:**
+1. Store node values in `List<Integer>`.
+2. Update after both subtree traversals.
+3. Use `result.add(root.val)`.
+
+**Complexity:** Time `O(N)`, Space `O(H)`.
+
+## LC104 — Maximum Depth of Binary Tree
+
 ### Pattern
 
-**Tree DFS + Recursive Postorder Traversal**
+**Tree DFS + Return Value / Height Calculation**
+
+Unlike traversal problems, we do not store every node. Each recursive call returns the depth of its subtree.
 
 ### Logic
 
-Postorder means **Left → Right → Root**. The current node is processed only after both subtrees have been completely traversed.
+```text
+             node
+            /    \
+       leftDepth rightDepth
+            \    /
+             max
+              + 1
+```
+
+For every node:
 
 ```text
-   DFS left subtree
-          ↓
-   DFS right subtree
-          ↓
-   process current node
+leftDepth  = depth(left)
+rightDepth = depth(right)
+answer = max(leftDepth, rightDepth) + 1
 ```
+
+### Base Case
+
+```java
+if (root == null) {
+    return 0;
+}
+```
+
+A null subtree has depth `0`; a leaf therefore has depth `1`.
 
 ### 3-Step Implementation Check
 
-1. **Store:** `List<Integer>` stores node values in postorder sequence.
-2. **Update when:** after completing both left and right subtree traversals.
-3. **Operation:** `result.add(root.val)`.
-
-### Algorithm
-
-1. Create an empty result list.
-2. Start recursive DFS from the root.
-3. If the current node is `null`, return.
-4. Recursively traverse the left child.
-5. Recursively traverse the right child.
-6. Add the current node's value to the result.
-7. Return the result list.
+1. **Store:** `leftDepth` and `rightDepth`.
+2. **Update when:** both child depths have been calculated.
+3. **Operation:** `Math.max(leftDepth, rightDepth) + 1`.
 
 ### Java Solution
 
 ```java
 class Solution {
-    public List<Integer> postorderTraversal(TreeNode root) {
-        List<Integer> result = new ArrayList<>();
-        postorder(root, result);
-        return result;
-    }
-
-    private void postorder(TreeNode root, List<Integer> result) {
+    public int maxDepth(TreeNode root) {
         if (root == null) {
-            return;
+            return 0;
         }
 
-        postorder(root.left, result);
-        postorder(root.right, result);
-        result.add(root.val);
+        int leftDepth = maxDepth(root.left);
+        int rightDepth = maxDepth(root.right);
+
+        return Math.max(leftDepth, rightDepth) + 1;
     }
 }
 ```
@@ -139,16 +138,19 @@ class Solution {
 ### Complexity
 
 - Time: **O(N)** — every node is visited once.
-- Space: **O(H)** for the recursive call stack, where `H` is tree height.
+- Space: **O(H)** for the recursion stack.
 - Balanced tree: **O(log N)** auxiliary stack space.
 - Skewed tree: **O(N)** auxiliary stack space.
 
-### Interview Traps
+### Interview Takeaway
 
-- Postorder is **Left → Right → Root**.
-- The current node must be processed after both recursive calls.
-- Tree DFS normally does not need a `visited[]` array because a tree has no cycles in its parent-child structure.
-- Recursive DFS uses the call stack; iterative DFS uses an explicit stack.
+This introduces an important DFS pattern:
+
+```text
+Child answers → combine answers → return answer for current node
+```
+
+This return-value pattern will be reused in problems such as tree diameter and other bottom-up calculations.
 
 ## Problem Set
 
@@ -157,5 +159,7 @@ class Solution {
 | LC144 | Preorder + Recursive DFS | Completed |
 | LC94 | Inorder + Recursive DFS | Completed |
 | LC145 | Postorder + Recursive DFS | Completed |
+| LC104 | DFS + Height / Return Value | Completed |
+| LC100 | Simultaneous DFS on Two Trees | Next |
 
 More Tree DFS problems will be added as they are completed.
