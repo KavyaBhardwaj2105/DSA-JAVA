@@ -77,24 +77,9 @@ DFS left → DFS right → process node
 
 ## LC104 — Maximum Depth of Binary Tree
 
-### Pattern
+**Pattern:** Tree DFS + Return Value / Height Calculation
 
-**Tree DFS + Return Value / Height Calculation**
-
-Unlike traversal problems, we do not store every node. Each recursive call returns the depth of its subtree.
-
-### Logic
-
-```text
-             node
-            /    \
-       leftDepth rightDepth
-            \    /
-             max
-              + 1
-```
-
-For every node:
+Each recursive call returns the depth of its subtree. The current node combines the two child answers using the larger depth and adds `1` for itself.
 
 ```text
 leftDepth  = depth(left)
@@ -102,55 +87,94 @@ rightDepth = depth(right)
 answer = max(leftDepth, rightDepth) + 1
 ```
 
-### Base Case
+**Base case:** `null → 0`.
 
-```java
-if (root == null) {
-    return 0;
-}
+**3-Step Check:**
+1. Store `leftDepth` and `rightDepth`.
+2. Update after both child depths are calculated.
+3. Use `Math.max(leftDepth, rightDepth) + 1`.
+
+**Complexity:** Time `O(N)`, Space `O(H)`.
+
+### Interview Takeaway
+
+```text
+Child answers → combine answers → return answer for current node
 ```
 
-A null subtree has depth `0`; a leaf therefore has depth `1`.
+This bottom-up return-value pattern will be reused in problems such as tree diameter.
+
+## LC100 — Same Tree
+
+### Pattern
+
+**Tree DFS + Simultaneous DFS on Two Trees**
+
+Instead of traversing one tree, DFS receives a corresponding pair of nodes from two trees and compares them recursively.
+
+### Logic
+
+```text
+both null
+   ↓
+ true
+
+one null
+   ↓
+ false
+
+values different
+   ↓
+ false
+
+otherwise
+   ↓
+left subtree same && right subtree same
+```
 
 ### 3-Step Implementation Check
 
-1. **Store:** `leftDepth` and `rightDepth`.
-2. **Update when:** both child depths have been calculated.
-3. **Operation:** `Math.max(leftDepth, rightDepth) + 1`.
+1. **Store:** No collection is required; the recursive function returns a boolean.
+2. **Check when:** Compare each corresponding pair of nodes before going deeper.
+3. **Operation:** Both left and right subtree comparisons must be true using `&&`.
+
+### Base Cases
+
+- Both `null` → `true`
+- Exactly one `null` → `false`
+- Different values → `false`
 
 ### Java Solution
 
 ```java
 class Solution {
-    public int maxDepth(TreeNode root) {
-        if (root == null) {
-            return 0;
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        if (p == null && q == null) {
+            return true;
         }
 
-        int leftDepth = maxDepth(root.left);
-        int rightDepth = maxDepth(root.right);
+        if (p == null || q == null) {
+            return false;
+        }
 
-        return Math.max(leftDepth, rightDepth) + 1;
+        if (p.val != q.val) {
+            return false;
+        }
+
+        return isSameTree(p.left, q.left)
+                && isSameTree(p.right, q.right);
     }
 }
 ```
 
 ### Complexity
 
-- Time: **O(N)** — every node is visited once.
+- Time: **O(N)** in the worst case.
 - Space: **O(H)** for the recursion stack.
-- Balanced tree: **O(log N)** auxiliary stack space.
-- Skewed tree: **O(N)** auxiliary stack space.
 
 ### Interview Takeaway
 
-This introduces an important DFS pattern:
-
-```text
-Child answers → combine answers → return answer for current node
-```
-
-This return-value pattern will be reused in problems such as tree diameter and other bottom-up calculations.
+This is the **two-tree DFS pattern**: compare corresponding nodes and recursively require both corresponding subtrees to match.
 
 ## Problem Set
 
@@ -160,6 +184,6 @@ This return-value pattern will be reused in problems such as tree diameter and o
 | LC94 | Inorder + Recursive DFS | Completed |
 | LC145 | Postorder + Recursive DFS | Completed |
 | LC104 | DFS + Height / Return Value | Completed |
-| LC100 | Simultaneous DFS on Two Trees | Next |
+| LC100 | Simultaneous DFS on Two Trees | Completed |
 
 More Tree DFS problems will be added as they are completed.
