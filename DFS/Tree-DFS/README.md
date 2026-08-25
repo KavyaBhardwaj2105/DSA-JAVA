@@ -181,35 +181,79 @@ otherwise
 - `null` node → `false`
 - Leaf node → `remaining == 0`
 
-### Java Solution
-
-```java
-class Solution {
-    public boolean hasPathSum(TreeNode root, int targetSum) {
-        if (root == null) {
-            return false;
-        }
-
-        int remaining = targetSum - root.val;
-
-        if (root.left == null && root.right == null) {
-            return remaining == 0;
-        }
-
-        return hasPathSum(root.left, remaining)
-                || hasPathSum(root.right, remaining);
-    }
-}
-```
-
 ### Complexity
 
 - Time: **O(N)**
 - Space: **O(H)** for the recursion stack.
 
+## LC257 — Binary Tree Paths
+
+**Pattern:** Tree DFS + Path Tracking + Root-to-Leaf Collection
+
+Track the current root-to-node path as a `String`. When a leaf is reached, add the complete path to the result list.
+
+```text
+DFS(node, path)
+    ↓
+update path with node.val
+    ↓
+leaf?
+    ↓ yes → result.add(path)
+    ↓ no
+DFS(left, path)
+DFS(right, path)
+```
+
+### 3-Step Implementation Check
+
+1. **Store:** Current path in `String` and completed paths in `List<String>`.
+2. **Update when:** Visiting each non-null node.
+3. **Operation:** Append the current node value to the path.
+
+### Java Solution
+
+```java
+class Solution {
+    public List<String> binaryTreePaths(TreeNode root) {
+        List<String> result = new ArrayList<>();
+        dfs(root, "", result);
+        return result;
+    }
+
+    private void dfs(TreeNode root, String path, List<String> result) {
+        if (root == null) {
+            return;
+        }
+
+        if (path.isEmpty()) {
+            path = String.valueOf(root.val);
+        } else {
+            path = path + "->" + root.val;
+        }
+
+        if (root.left == null && root.right == null) {
+            result.add(path);
+            return;
+        }
+
+        dfs(root.left, path, result);
+        dfs(root.right, path, result);
+    }
+}
+```
+
+### Backtracking Note
+
+Explicit backtracking is not required because Java `String` is immutable. Each recursive call receives its own updated path value.
+
+### Complexity
+
+- Time: **O(N × L)** in the worst case due to path-string construction, where `L` is the path length.
+- Space: **O(H)** recursion stack, excluding output storage.
+
 ### Interview Takeaway
 
-This is the **DFS + state tracking pattern**: carry the remaining target through recursive calls and validate only at the required terminal condition (leaf).
+This is the **DFS + path state pattern**: carry the current path through recursion and collect it only at leaf nodes.
 
 ## Problem Set
 
@@ -222,5 +266,6 @@ This is the **DFS + state tracking pattern**: carry the remaining target through
 | LC100 | Simultaneous DFS on Two Trees | Completed |
 | LC226 | DFS + Tree Modification / Swap | Completed |
 | LC112 | DFS + Remaining Target State | Completed |
+| LC257 | DFS + Path Tracking | Completed |
 
 More Tree DFS problems will be added as they are completed.
