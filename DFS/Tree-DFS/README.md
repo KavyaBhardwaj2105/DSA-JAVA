@@ -106,75 +106,81 @@ This bottom-up return-value pattern will be reused in problems such as tree diam
 
 ## LC100 — Same Tree
 
-### Pattern
+**Pattern:** Tree DFS + Simultaneous DFS on Two Trees
 
-**Tree DFS + Simultaneous DFS on Two Trees**
-
-Instead of traversing one tree, DFS receives a corresponding pair of nodes from two trees and compares them recursively.
-
-### Logic
+Compare corresponding nodes recursively. Both corresponding subtrees must also be identical.
 
 ```text
-both null
-   ↓
- true
+both null → true
+one null → false
+values different → false
+otherwise → left same && right same
+```
 
-one null
-   ↓
- false
+**3-Step Check:**
+1. Store nothing; the recursive function returns a boolean.
+2. Compare each corresponding pair before going deeper.
+3. Require both subtree comparisons to be true using `&&`.
 
-values different
-   ↓
- false
+**Complexity:** Time `O(N)`, Space `O(H)`.
 
-otherwise
-   ↓
-left subtree same && right subtree same
+## LC226 — Invert Binary Tree
+
+**Pattern:** Tree DFS + Tree Modification / Pointer Swapping
+
+At every non-null node, swap its left and right child references, then recursively invert both resulting subtrees.
+
+```text
+current node
+    ↓
+swap left ↔ right
+    ↓
+DFS left
+    ↓
+DFS right
 ```
 
 ### 3-Step Implementation Check
 
-1. **Store:** No collection is required; the recursive function returns a boolean.
-2. **Check when:** Compare each corresponding pair of nodes before going deeper.
-3. **Operation:** Both left and right subtree comparisons must be true using `&&`.
-
-### Base Cases
-
-- Both `null` → `true`
-- Exactly one `null` → `false`
-- Different values → `false`
+1. **Store:** Save `root.left` in a temporary `TreeNode` reference.
+2. **Update when:** Process each non-null node during DFS.
+3. **Operation:** Swap `root.left` and `root.right` using `temp`.
 
 ### Java Solution
 
 ```java
 class Solution {
-    public boolean isSameTree(TreeNode p, TreeNode q) {
-        if (p == null && q == null) {
-            return true;
+    public TreeNode invertTree(TreeNode root) {
+        if (root == null) {
+            return null;
         }
 
-        if (p == null || q == null) {
-            return false;
-        }
+        TreeNode temp = root.left;
+        root.left = root.right;
+        root.right = temp;
 
-        if (p.val != q.val) {
-            return false;
-        }
+        invertTree(root.left);
+        invertTree(root.right);
 
-        return isSameTree(p.left, q.left)
-                && isSameTree(p.right, q.right);
+        return root;
     }
 }
 ```
 
+### Important Point
+
+A specific traversal order is not required. The key requirement is that every node is processed once. The swap operation is independent at each node.
+
 ### Complexity
 
-- Time: **O(N)** in the worst case.
+- Time: **O(N)** — every node is visited once.
 - Space: **O(H)** for the recursion stack.
+- Balanced tree: **O(log N)** auxiliary stack space.
+- Skewed tree: **O(N)** auxiliary stack space.
 
 ### Interview Takeaway
 
-This is the **two-tree DFS pattern**: compare corresponding nodes and recursively require both corresponding subtrees to match.
+This is a DFS **modification pattern**: recursively visit the tree while changing the structure at each node.
 
 ## Problem Set
 
@@ -185,5 +191,6 @@ This is the **two-tree DFS pattern**: compare corresponding nodes and recursivel
 | LC145 | Postorder + Recursive DFS | Completed |
 | LC104 | DFS + Height / Return Value | Completed |
 | LC100 | Simultaneous DFS on Two Trees | Completed |
+| LC226 | DFS + Tree Modification / Swap | Completed |
 
 More Tree DFS problems will be added as they are completed.
