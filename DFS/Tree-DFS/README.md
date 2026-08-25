@@ -146,41 +146,70 @@ DFS right
 2. **Update when:** Process each non-null node during DFS.
 3. **Operation:** Swap `root.left` and `root.right` using `temp`.
 
+### Complexity
+
+- Time: **O(N)**
+- Space: **O(H)** recursion stack.
+
+## LC112 — Path Sum
+
+**Pattern:** Tree DFS + Remaining Target State + Root-to-Leaf Validation
+
+Track the remaining target sum while performing DFS from the root toward a leaf. At each node, subtract its value from the remaining target. A path is valid only when the current node is a leaf and the remaining target becomes `0`.
+
+```text
+root == null
+    → false
+
+remaining = targetSum - root.val
+
+leaf?
+    → remaining == 0
+
+otherwise
+    → DFS(left, remaining) || DFS(right, remaining)
+```
+
+### 3-Step Implementation Check
+
+1. **Store:** Remaining target sum.
+2. **Update when:** Visiting every non-null node.
+3. **Operation:** `remaining = targetSum - root.val`.
+
+### Base Cases
+
+- `null` node → `false`
+- Leaf node → `remaining == 0`
+
 ### Java Solution
 
 ```java
 class Solution {
-    public TreeNode invertTree(TreeNode root) {
+    public boolean hasPathSum(TreeNode root, int targetSum) {
         if (root == null) {
-            return null;
+            return false;
         }
 
-        TreeNode temp = root.left;
-        root.left = root.right;
-        root.right = temp;
+        int remaining = targetSum - root.val;
 
-        invertTree(root.left);
-        invertTree(root.right);
+        if (root.left == null && root.right == null) {
+            return remaining == 0;
+        }
 
-        return root;
+        return hasPathSum(root.left, remaining)
+                || hasPathSum(root.right, remaining);
     }
 }
 ```
 
-### Important Point
-
-A specific traversal order is not required. The key requirement is that every node is processed once. The swap operation is independent at each node.
-
 ### Complexity
 
-- Time: **O(N)** — every node is visited once.
+- Time: **O(N)**
 - Space: **O(H)** for the recursion stack.
-- Balanced tree: **O(log N)** auxiliary stack space.
-- Skewed tree: **O(N)** auxiliary stack space.
 
 ### Interview Takeaway
 
-This is a DFS **modification pattern**: recursively visit the tree while changing the structure at each node.
+This is the **DFS + state tracking pattern**: carry the remaining target through recursive calls and validate only at the required terminal condition (leaf).
 
 ## Problem Set
 
@@ -192,5 +221,6 @@ This is a DFS **modification pattern**: recursively visit the tree while changin
 | LC104 | DFS + Height / Return Value | Completed |
 | LC100 | Simultaneous DFS on Two Trees | Completed |
 | LC226 | DFS + Tree Modification / Swap | Completed |
+| LC112 | DFS + Remaining Target State | Completed |
 
 More Tree DFS problems will be added as they are completed.
