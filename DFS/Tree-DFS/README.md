@@ -6,254 +6,112 @@ Tree DFS explores a tree deeply before backtracking. Recursive DFS uses the call
 
 ```java
 void dfs(TreeNode node) {
-    if (node == null) {
-        return;
-    }
-
-    // process node
+    if (node == null) return;
     dfs(node.left);
     dfs(node.right);
 }
 ```
 
 ## Traversal Orders
-
 - Preorder: **Root → Left → Right**
 - Inorder: **Left → Root → Right**
 - Postorder: **Left → Right → Root**
 
-The DFS engine is the same; only the position of `process node` changes.
+## Completed Problems
 
-## LC144 — Binary Tree Preorder Traversal
+### LC144 — Binary Tree Preorder Traversal
+**Pattern:** Recursive preorder DFS
 
-**Pattern:** Tree DFS + Recursive Preorder
-
-**Logic:** Process current node first, then recursively traverse left and right.
-
-```text
-process node → DFS left → DFS right
-```
-
-**3-Step Check:**
-1. Store node values in `List<Integer>`.
-2. Update before either child traversal.
-3. Use `result.add(root.val)`.
+**Logic:** Process root, then left subtree, then right subtree.
 
 **Complexity:** Time `O(N)`, Space `O(H)`.
 
-## LC94 — Binary Tree Inorder Traversal
+### LC94 — Binary Tree Inorder Traversal
+**Pattern:** Recursive inorder DFS
 
-**Pattern:** Tree DFS + Recursive Inorder
-
-**Logic:** Traverse left subtree, process current node, then traverse right subtree.
-
-```text
-DFS left → process node → DFS right
-```
-
-**3-Step Check:**
-1. Store node values in `List<Integer>`.
-2. Update after the left subtree and before the right subtree.
-3. Use `result.add(root.val)`.
+**Logic:** Left subtree → process root → right subtree.
 
 **Complexity:** Time `O(N)`, Space `O(H)`.
 
-## LC145 — Binary Tree Postorder Traversal
+### LC145 — Binary Tree Postorder Traversal
+**Pattern:** Recursive postorder DFS
 
-**Pattern:** Tree DFS + Recursive Postorder
-
-**Logic:** Traverse both children first, then process the current node.
-
-```text
-DFS left → DFS right → process node
-```
-
-**3-Step Check:**
-1. Store node values in `List<Integer>`.
-2. Update after both subtree traversals.
-3. Use `result.add(root.val)`.
+**Logic:** Left subtree → right subtree → process root.
 
 **Complexity:** Time `O(N)`, Space `O(H)`.
 
-## LC104 — Maximum Depth of Binary Tree
+### LC104 — Maximum Depth of Binary Tree
+**Pattern:** DFS + return value
 
-**Pattern:** Tree DFS + Return Value / Height Calculation
-
-Each recursive call returns the depth of its subtree. The current node combines the two child answers using the larger depth and adds `1` for itself.
-
-```text
-leftDepth  = depth(left)
-rightDepth = depth(right)
-answer = max(leftDepth, rightDepth) + 1
-```
-
-**Base case:** `null → 0`.
+**Logic:** Get both child depths, take the maximum, and add `1` for the current node.
 
 **3-Step Check:**
-1. Store `leftDepth` and `rightDepth`.
-2. Update after both child depths are calculated.
-3. Use `Math.max(leftDepth, rightDepth) + 1`.
+1. Store: `leftDepth`, `rightDepth`.
+2. Update: after both child DFS calls return.
+3. Operation: `Math.max(leftDepth, rightDepth) + 1`.
 
 **Complexity:** Time `O(N)`, Space `O(H)`.
 
-### Interview Takeaway
+### LC100 — Same Tree
+**Pattern:** Simultaneous DFS on two trees
 
-```text
-Child answers → combine answers → return answer for current node
-```
-
-This bottom-up return-value pattern will be reused in problems such as tree diameter.
-
-## LC100 — Same Tree
-
-**Pattern:** Tree DFS + Simultaneous DFS on Two Trees
-
-Compare corresponding nodes recursively. Both corresponding subtrees must also be identical.
-
-```text
-both null → true
-one null → false
-values different → false
-otherwise → left same && right same
-```
-
-**3-Step Check:**
-1. Store nothing; the recursive function returns a boolean.
-2. Compare each corresponding pair before going deeper.
-3. Require both subtree comparisons to be true using `&&`.
+**Logic:** Both null → true; one null → false; different values → false; otherwise both left and right subtree comparisons must be true.
 
 **Complexity:** Time `O(N)`, Space `O(H)`.
 
-## LC226 — Invert Binary Tree
+### LC226 — Invert Binary Tree
+**Pattern:** DFS + tree modification / swapping
 
-**Pattern:** Tree DFS + Tree Modification / Pointer Swapping
+**Logic:** At every node, swap left and right child references, then recursively process both subtrees.
 
-At every non-null node, swap its left and right child references, then recursively invert both resulting subtrees.
+**3-Step Check:**
+1. Store: `root.left` in `temp`.
+2. Update: at every non-null node.
+3. Operation: swap `root.left` and `root.right`.
 
-```text
-current node
-    ↓
-swap left ↔ right
-    ↓
-DFS left
-    ↓
-DFS right
-```
+**Complexity:** Time `O(N)`, Space `O(H)`.
 
-### 3-Step Implementation Check
+### LC112 — Path Sum
+**Pattern:** DFS + remaining target state + root-to-leaf validation
 
-1. **Store:** Save `root.left` in a temporary `TreeNode` reference.
-2. **Update when:** Process each non-null node during DFS.
-3. **Operation:** Swap `root.left` and `root.right` using `temp`.
+**Logic:** Subtract each node value from the remaining target. Only a leaf can complete a valid path, so return whether the remaining target is `0` at a leaf.
 
-### Complexity
+**3-Step Check:**
+1. Store: remaining target sum.
+2. Update: `remaining = targetSum - root.val`.
+3. Operation: pass the updated remaining target to both children.
 
-- Time: **O(N)**
-- Space: **O(H)** recursion stack.
+**Base cases:** null → `false`; leaf → `remaining == 0`.
 
-## LC112 — Path Sum
+**Complexity:** Time `O(N)`, Space `O(H)`.
 
-**Pattern:** Tree DFS + Remaining Target State + Root-to-Leaf Validation
+### LC257 — Binary Tree Paths
+**Pattern:** DFS + path tracking + root-to-leaf collection
 
-Track the remaining target sum while performing DFS from the root toward a leaf. At each node, subtract its value from the remaining target. A path is valid only when the current node is a leaf and the remaining target becomes `0`.
+**Logic:** Carry the current root-to-node path as a `String`. When a leaf is reached, add the complete path to the result list.
 
-```text
-root == null
-    → false
+**3-Step Check:**
+1. Store: current path and completed paths.
+2. Update: append the current node value while visiting it.
+3. Operation: add the path to the result when a leaf is reached.
 
-remaining = targetSum - root.val
+**Backtracking:** Explicit undo is not required because `String` is immutable; each recursive call receives its own path value.
 
-leaf?
-    → remaining == 0
+**Complexity:** Time `O(N × L)` worst case due to path-string construction, Space `O(H)` recursion stack excluding output.
 
-otherwise
-    → DFS(left, remaining) || DFS(right, remaining)
-```
+### LC543 — Diameter of Binary Tree
+**Pattern:** DFS + return value + global maximum
 
-### 3-Step Implementation Check
+**Logic:** Each DFS call returns the subtree height. At every node, the diameter passing through that node is `left + right`; update the global best diameter with that value. Then return the height to the parent.
 
-1. **Store:** Remaining target sum.
-2. **Update when:** Visiting every non-null node.
-3. **Operation:** `remaining = targetSum - root.val`.
+**3-Step Check:**
+1. Store: subtree height through the recursive return value; global best diameter in `diameter`.
+2. Update: after both child heights are available.
+3. Operation: `diameter = Math.max(diameter, left + right)`.
 
-### Base Cases
+**Important distinction:** `height()` returns information to the parent; `diameter` stores the best answer found anywhere in the tree.
 
-- `null` node → `false`
-- Leaf node → `remaining == 0`
-
-### Complexity
-
-- Time: **O(N)**
-- Space: **O(H)** for the recursion stack.
-
-## LC257 — Binary Tree Paths
-
-**Pattern:** Tree DFS + Path Tracking + Root-to-Leaf Collection
-
-Track the current root-to-node path as a `String`. When a leaf is reached, add the complete path to the result list.
-
-```text
-DFS(node, path)
-    ↓
-update path with node.val
-    ↓
-leaf?
-    ↓ yes → result.add(path)
-    ↓ no
-DFS(left, path)
-DFS(right, path)
-```
-
-### 3-Step Implementation Check
-
-1. **Store:** Current path in `String` and completed paths in `List<String>`.
-2. **Update when:** Visiting each non-null node.
-3. **Operation:** Append the current node value to the path.
-
-### Java Solution
-
-```java
-class Solution {
-    public List<String> binaryTreePaths(TreeNode root) {
-        List<String> result = new ArrayList<>();
-        dfs(root, "", result);
-        return result;
-    }
-
-    private void dfs(TreeNode root, String path, List<String> result) {
-        if (root == null) {
-            return;
-        }
-
-        if (path.isEmpty()) {
-            path = String.valueOf(root.val);
-        } else {
-            path = path + "->" + root.val;
-        }
-
-        if (root.left == null && root.right == null) {
-            result.add(path);
-            return;
-        }
-
-        dfs(root.left, path, result);
-        dfs(root.right, path, result);
-    }
-}
-```
-
-### Backtracking Note
-
-Explicit backtracking is not required because Java `String` is immutable. Each recursive call receives its own updated path value.
-
-### Complexity
-
-- Time: **O(N × L)** in the worst case due to path-string construction, where `L` is the path length.
-- Space: **O(H)** recursion stack, excluding output storage.
-
-### Interview Takeaway
-
-This is the **DFS + path state pattern**: carry the current path through recursion and collect it only at leaf nodes.
+**Complexity:** Time `O(N)`, Space `O(H)`.
 
 ## Problem Set
 
@@ -267,5 +125,6 @@ This is the **DFS + path state pattern**: carry the current path through recursi
 | LC226 | DFS + Tree Modification / Swap | Completed |
 | LC112 | DFS + Remaining Target State | Completed |
 | LC257 | DFS + Path Tracking | Completed |
+| LC543 | DFS + Return Value + Global Maximum | Completed |
 
 More Tree DFS problems will be added as they are completed.
