@@ -118,17 +118,24 @@ void dfs(TreeNode node) {
 
 **Logic:** The recursive function normally returns subtree height. If any subtree is unbalanced, it returns `-1` as a sentinel value. That signal is propagated immediately upward. A node is unbalanced when `Math.abs(left - right) > 1`.
 
-```text
-normal subtree → height
-unbalanced subtree → -1
-```
-
 **3-Step Check:**
 1. Store: subtree height; `-1` represents an unbalanced subtree.
 2. Update: after both child heights are available.
 3. Operation: if `Math.abs(left - right) > 1`, return `-1`; otherwise return `1 + Math.max(left, right)`.
 
-**Why `-1` works:** Valid subtree heights are non-negative, so `-1` can safely represent an error/unbalanced state.
+**Why `-1` works:** Valid subtree heights are non-negative, so `-1` can safely represent an unbalanced state.
+
+**Complexity:** Time `O(N)`, Space `O(H)`.
+
+### LC236 — Lowest Common Ancestor of a Binary Tree
+**Pattern:** DFS + parent-child relationship + returned node information
+
+**Logic:** Recursively search both subtrees for `p` and `q`. If the current node is either target, return it. If both left and right DFS calls return non-null nodes, one target was found in each subtree, so the current node is the lowest common ancestor. If only one side returns non-null, propagate that node upward.
+
+**3-Step Check:**
+1. Store: nodes returned by the left and right DFS calls.
+2. Update: after both subtree searches return.
+3. Operation: return the current node when both sides contain targets; otherwise propagate the non-null result.
 
 **Complexity:** Time `O(N)`, Space `O(H)`.
 
@@ -146,5 +153,6 @@ unbalanced subtree → -1
 | LC257 | DFS + Path Tracking | Completed |
 | LC543 | DFS + Return Value + Global Maximum | Completed |
 | LC110 | DFS + Return Value + Sentinel | Completed |
+| LC236 | DFS + Returned Node Information | Completed |
 
 More Tree DFS problems will be added as they are completed.
