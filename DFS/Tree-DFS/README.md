@@ -113,6 +113,25 @@ void dfs(TreeNode node) {
 
 **Complexity:** Time `O(N)`, Space `O(H)`.
 
+### LC110 — Balanced Binary Tree
+**Pattern:** DFS + return value + sentinel value
+
+**Logic:** The recursive function normally returns subtree height. If any subtree is unbalanced, it returns `-1` as a sentinel value. That signal is propagated immediately upward. A node is unbalanced when `Math.abs(left - right) > 1`.
+
+```text
+normal subtree → height
+unbalanced subtree → -1
+```
+
+**3-Step Check:**
+1. Store: subtree height; `-1` represents an unbalanced subtree.
+2. Update: after both child heights are available.
+3. Operation: if `Math.abs(left - right) > 1`, return `-1`; otherwise return `1 + Math.max(left, right)`.
+
+**Why `-1` works:** Valid subtree heights are non-negative, so `-1` can safely represent an error/unbalanced state.
+
+**Complexity:** Time `O(N)`, Space `O(H)`.
+
 ## Problem Set
 
 | Problem | Pattern | Status |
@@ -126,5 +145,6 @@ void dfs(TreeNode node) {
 | LC112 | DFS + Remaining Target State | Completed |
 | LC257 | DFS + Path Tracking | Completed |
 | LC543 | DFS + Return Value + Global Maximum | Completed |
+| LC110 | DFS + Return Value + Sentinel | Completed |
 
 More Tree DFS problems will be added as they are completed.
