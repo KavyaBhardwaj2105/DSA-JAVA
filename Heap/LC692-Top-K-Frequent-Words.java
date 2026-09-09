@@ -3,18 +3,28 @@ import java.util.*;
 class Solution {
     public List<String> topKFrequent(String[] words, int k) {
 
-        // 1. Frequency count
-        HashMap<String, Integer> map = new HashMap<>();
+        Map<String, Integer> freq = new HashMap<>();
 
-        // 2. Min-Heap
+        for (String word : words) {
+            freq.put(word, freq.getOrDefault(word, 0) + 1);
+        }
+
         PriorityQueue<String> pq = new PriorityQueue<>(
-            (a, b) -> {
-                // comparator
+            new Comparator<String>() {
+                @Override
+                public int compare(String a, String b) {
+
+                    if (freq.get(a).equals(freq.get(b))) {
+                        return b.compareTo(a);
+                    }
+
+                    return Integer.compare(freq.get(a), freq.get(b));
+                }
             }
         );
 
-        // 3. Map ke elements heap mein daalo
-        for (String word : map.keySet()) {
+        for (String word : freq.keySet()) {
+
             pq.offer(word);
 
             if (pq.size() > k) {
@@ -22,16 +32,14 @@ class Solution {
             }
         }
 
-        // 4. Heap se result nikalo
-        List<String> result = new ArrayList<>();
+        List<String> ans = new ArrayList<>();
 
         while (!pq.isEmpty()) {
-            result.add(pq.poll());
+            ans.add(pq.poll());
         }
 
-        // 5. Required order
-        Collections.reverse(result);
+        Collections.reverse(ans);
 
-        return result;
+        return ans;
     }
 }
