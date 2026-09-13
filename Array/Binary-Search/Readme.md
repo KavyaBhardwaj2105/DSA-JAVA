@@ -1,5 +1,4 @@
 # Binary Search — DSA with Java
-
 Binary Search is not just a searching algorithm. The real skill is recognizing when a problem has an **ordered or monotonic search space** and eliminating half of that search space at every step.
 
 ---
