@@ -21,7 +21,6 @@ class Solution {
                 }
 
                 previous = current;
-
                 if (current.left != null) q.offer(current.left);
                 if (current.right != null) q.offer(current.right);
             }
