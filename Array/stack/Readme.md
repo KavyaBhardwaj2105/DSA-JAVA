@@ -1,5 +1,5 @@
 # Stack — DSA with Java
-```this has been the easiest yet complex to grasp topic for me```
+```jaisi jaise aage ka pdha piche ka bhul gya```
 Stack is a linear data structure that follows:
 
 > LIFO — Last In, First Out
