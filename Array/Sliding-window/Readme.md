@@ -11,7 +11,6 @@ This often converts an O(n²) brute-force approach into O(n).
 ---
 
 # 1. What is Sliding Window?
-
 A window represents a continuous range:
 
     [left ........ right]
