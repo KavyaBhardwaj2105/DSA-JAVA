@@ -1,6 +1,5 @@
 class Solution { 
     public int canCompleteCircuit(int[] gas, int[] cost) { 
- 
         int totalGas = 0; 
         int totalCost = 0; 
  
